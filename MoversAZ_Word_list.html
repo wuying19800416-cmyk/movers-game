@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Movers 單字王 - 拼字挑戰版</title>
+    <title>Movers 單字王 - 隨機拼字挑戰版</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -56,7 +56,9 @@
             const [highScore, setHighScore] = useState(0);
             const [feedback, setFeedback] = useState(null);
             const [userInput, setUserInput] = useState('');
-            
+            const [currentWord, setCurrentWord] = useState(null);
+            const [maskedWord, setMaskedWord] = useState("");
+
             const speak = (text) => {
                 if ('speechSynthesis' in window) {
                     window.speechSynthesis.cancel();
@@ -65,6 +67,47 @@
                     u.rate = 0.85;
                     window.speechSynthesis.speak(u);
                 }
+            };
+
+            // 產生隨機挖空單字的輔助函數
+            const generateMaskedWord = (word) => {
+                let masked = "";
+                let hasBlank = false;
+                let hasLetter = false;
+
+                // 嘗試產生隨機遮罩
+                for (let i = 0; i < word.length; i++) {
+                    if (word[i] === ' ') {
+                        masked += ' ';
+                    } else {
+                        // 約 50% 機率挖空
+                        const shouldMask = Math.random() > 0.5;
+                        if (shouldMask) {
+                            masked += "_";
+                            hasBlank = true;
+                        } else {
+                            masked += word[i];
+                            hasLetter = true;
+                        }
+                    }
+                }
+
+                // 保底機制：確保至少有一個空格
+                if (!hasBlank) {
+                    const idx = Math.floor(Math.random() * word.length);
+                    if (word[idx] !== ' ') {
+                        masked = masked.substring(0, idx) + "_" + masked.substring(idx + 1);
+                    }
+                }
+                // 保底機制：確保至少有一個字母顯示
+                if (!hasLetter) {
+                    const idx = Math.floor(Math.random() * word.length);
+                    if (word[idx] !== ' ') {
+                        masked = masked.substring(0, idx) + word[idx] + masked.substring(idx + 1);
+                    }
+                }
+
+                return masked;
             };
 
             // 記憶翻牌
@@ -79,30 +122,19 @@
             };
 
             // 拼字大師 (全拼)
-            const [currentWord, setCurrentWord] = useState(null);
             const initSpelling = () => {
                 const word = ALL_VOCAB[Math.floor(Math.random() * ALL_VOCAB.length)];
                 setCurrentWord(word); setUserInput(''); setFeedback(null); setScore(0); setGameState('spelling');
                 setTimeout(() => speak(word.word), 500);
             };
 
-            // 拼字填空賽 (Masked)
-            const [maskedWord, setMaskedWord] = useState("");
+            // 拼字填空賽 (隨機 Masked)
             const initFillBlanks = () => {
                 const wordObj = ALL_VOCAB[Math.floor(Math.random() * ALL_VOCAB.length)];
                 setCurrentWord(wordObj);
-                const word = wordObj.word;
-                // 挖空邏輯：保留頭尾，中間挖掉
-                let masked = "";
-                for (let i = 0; i < word.length; i++) {
-                    if (i === 0 || i === word.length - 1 || word[i] === ' ') {
-                        masked += word[i];
-                    } else {
-                        masked += "_";
-                    }
-                }
-                setMaskedWord(masked); setUserInput(''); setFeedback(null); setScore(0); setGameState('fillBlanks');
-                setTimeout(() => speak(word), 500);
+                setMaskedWord(generateMaskedWord(wordObj.word));
+                setUserInput(''); setFeedback(null); setScore(0); setGameState('fillBlanks');
+                setTimeout(() => speak(wordObj.word), 500);
             };
 
             const checkAnswer = (mode) => {
@@ -112,9 +144,7 @@
                         const next = ALL_VOCAB[Math.floor(Math.random() * ALL_VOCAB.length)];
                         setCurrentWord(next); setUserInput(''); setFeedback(null);
                         if (mode === 'fillBlanks') {
-                            let m = "";
-                            for(let i=0; i<next.word.length; i++) m += (i===0 || i===next.word.length-1 || next.word[i]===' ') ? next.word[i] : "_";
-                            setMaskedWord(m);
+                            setMaskedWord(generateMaskedWord(next.word));
                         }
                         speak(next.word);
                     }, 1200);
@@ -142,7 +172,7 @@
                                 <div className="grid gap-4 w-full">
                                     <button onClick={initMemory} className="bg-sky-500 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition-all">🧠 記憶翻牌 (Movers A-Z)</button>
                                     <button onClick={initSpelling} className="bg-emerald-500 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition-all">⌨️ 拼字大師 (全拼練習)</button>
-                                    <button onClick={initFillBlanks} className="bg-orange-500 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition-all">🧩 拼字填空賽 (Masked)</button>
+                                    <button onClick={initFillBlanks} className="bg-orange-500 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition-all">🧩 拼字填空賽 (隨機挖空)</button>
                                 </div>
                             </div>
                         )}
