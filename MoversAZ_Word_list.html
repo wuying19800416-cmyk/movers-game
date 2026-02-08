@@ -3,372 +3,207 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>小學英語單字冒險遊戲 - Movers 完整版</title>
-    <!-- 載入 React, Babel 與 Tailwind CSS -->
+    <title>Movers 單字王 - 拼字挑戰版</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body { 
-            font-family: 'Noto Sans TC', sans-serif; 
-            /* 防止手機端雙擊縮放，提升觸控反應速度 */
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
-        }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
+        body { font-family: 'Noto Sans TC', sans-serif; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
         .animate-shake { animation: shake 0.2s ease-in-out 2; }
-        .falling-word { transition: top 0.05s linear; }
-        
-        /* 針對行動裝置優化捲軸與佈局 */
-        .game-container {
-            max-height: 90vh;
-        }
     </style>
 </head>
 <body class="bg-indigo-50">
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useCallback, useRef } = React;
+        const { useState, useEffect, useCallback } = React;
 
         const ALL_VOCAB = [
-            { word: 'above', key: 'prep', emoji: '⬆️' },
-            { word: 'address', key: 'n', emoji: '🏠' },
-            { word: 'afraid', key: 'adj', emoji: '😨' },
-            { word: 'after', key: 'prep', emoji: '⏰' },
-            { word: 'age', key: 'n', emoji: '🎂' },
-            { word: 'all right', key: 'adj+adv', emoji: '👌' },
-            { word: 'always', key: 'adv', emoji: '♾️' },
-            { word: 'asleep', key: 'adj', emoji: '😴' },
-            { word: 'awake', key: 'adj', emoji: '👀' },
-            { word: 'back', key: 'adj+adv+n', emoji: '🔙' },
-            { word: 'badly', key: 'adv', emoji: '👎' },
-            { word: 'balcony', key: 'n', emoji: '🏙️' },
-            { word: 'basement', key: 'n', emoji: '📉' },
-            { word: 'beard', key: 'n', emoji: '🧔' },
-            { word: 'blanket', key: 'n', emoji: '🛌' },
-            { word: 'boring', key: 'adj', emoji: '🥱' },
-            { word: 'bottle', key: 'n', emoji: '🍼' },
-            { word: 'bowl', key: 'n', emoji: '🥣' },
-            { word: 'brave', key: 'adj', emoji: '🦁' },
-            { word: 'brilliant', key: 'adj', emoji: '🌟' },
-            { word: 'build', key: 'v', emoji: '🧱' },
-            { word: 'bus station', key: 'n', emoji: '🚏' },
-            { word: 'cage', key: 'n', emoji: '🥅' },
-            { word: 'careful', key: 'adj', emoji: '⚠️' },
-            { word: 'carry', key: 'v', emoji: '📦' },
-            { word: 'catch', key: 'v', emoji: '🧤' },
-            { word: 'cheese', key: 'n', emoji: '🧀' },
-            { word: 'cinema', key: 'n', emoji: '🎬' },
-            { word: 'clever', key: 'adj', emoji: '💡' },
-            { word: 'climb', key: 'v', emoji: '🧗' },
-            { word: 'cloudy', key: 'adj', emoji: '☁️' },
-            { word: 'clown', key: 'n', emoji: '🤡' },
-            { word: 'cook', key: 'n+v', emoji: '👨‍🍳' },
-            { word: 'could', key: 'v', emoji: '💪' },
-            { word: 'country', key: 'n', emoji: '🗺️' },
-            { word: 'cry', key: 'v', emoji: '😢' },
-            { word: 'dance', key: 'n+v', emoji: '💃' },
-            { word: 'dangerous', key: 'adj', emoji: '🚫' },
-            { word: 'daughter', key: 'n', emoji: '👧' },
-            { word: 'dentist', key: 'n', emoji: '🦷' },
-            { word: 'difficult', key: 'adj', emoji: '🧠' },
-            { word: 'dolphin', key: 'n', emoji: '🐬' },
-            { word: 'dream', key: 'n+v', emoji: '💭' },
-            { word: 'drive', key: 'v', emoji: '🚗' },
-            { word: 'dry', key: 'adj+v', emoji: '🏜️' },
-            { word: 'earache', key: 'n', emoji: '👂' },
-            { word: 'elevator', key: 'n', emoji: '🛗' },
-            { word: 'exciting', key: 'adj', emoji: '🤩' },
-            { word: 'farmer', key: 'n', emoji: '👨‍🌾' },
-            { word: 'field', key: 'n', emoji: '⛳' },
-            { word: 'fine', key: 'adj', emoji: '✨' },
-            { word: 'fix', key: 'v', emoji: '🔧' },
-            { word: 'forest', key: 'n', emoji: '🌲' },
-            { word: 'frightened', key: 'adj', emoji: '😱' },
-            { word: 'glass', key: 'n', emoji: '🥛' },
-            { word: 'grandparent', key: 'n', emoji: '👵' },
-            { word: 'grass', key: 'n', emoji: '🌱' },
-            { word: 'grown-up', key: 'n', emoji: '👨' },
-            { word: 'headache', key: 'n', emoji: '🤕' },
-            { word: 'helmet', key: 'n', emoji: '🪖' },
-            { word: 'holiday', key: 'n', emoji: '🏖️' },
-            { word: 'hop', key: 'v', emoji: '🐇' },
-            { word: 'hospital', key: 'n', emoji: '🏥' },
-            { word: 'hungry', key: 'adj', emoji: '😋' },
-            { word: 'hurt', key: 'v', emoji: '🩹' },
-            { word: 'ice', key: 'n', emoji: '🧊' },
-            { word: 'island', key: 'n', emoji: '🏝️' },
-            { word: 'jungle', key: 'n', emoji: '🌳' },
-            { word: 'kangaroo', key: 'n', emoji: '🦘' },
-            { word: 'kick', key: 'v', emoji: '⚽' },
-            { word: 'kitten', key: 'n', emoji: '🐱' },
-            { word: 'lake', key: 'n', emoji: '🏞️' },
-            { word: 'laptop', key: 'n', emoji: '💻' },
-            { word: 'library', key: 'n', emoji: '📚' },
-            { word: 'lion', key: 'n', emoji: '🦁' },
-            { word: 'loudly', key: 'adv', emoji: '📢' },
-            { word: 'market', key: 'n', emoji: '🍎' },
-            { word: 'mistake', key: 'n', emoji: '❌' },
-            { word: 'mountain', key: 'n', emoji: '⛰️' },
-            { word: 'naughty', key: 'adj', emoji: '😈' },
-            { word: 'nurse', key: 'n', emoji: '👩‍⚕️' },
-            { word: 'opposite', key: 'prep', emoji: '↔️' },
-            { word: 'outside', key: 'adv+n+prep', emoji: '🌳' },
-            { word: 'pancake', key: 'n', emoji: '🥞' },
-            { word: 'panda', key: 'n', emoji: '🐼' },
-            { word: 'penguin', key: 'n', emoji: '🐧' },
-            { word: 'pirate', key: 'n', emoji: '🏴‍☠️' },
-            { word: 'playground', key: 'n', emoji: '🎠' },
-            { word: 'pretty', key: 'adj', emoji: '🦋' },
-            { word: 'quick', key: 'adj', emoji: '⚡' },
-            { word: 'quiet', key: 'adj', emoji: '🤫' },
-            { word: 'rainbow', key: 'n', emoji: '🌈' },
-            { word: 'river', key: 'n', emoji: '🌊' },
-            { word: 'roller skates', key: 'n', emoji: '🛼' },
-            { word: 'sandwich', key: 'n', emoji: '🥪' },
-            { word: 'sauce', key: 'n', emoji: '🥫' },
-            { word: 'shoulder', key: 'n', emoji: '💪' },
-            { word: 'shower', key: 'n', emoji: '🚿' },
-            { word: 'skate', key: 'v', emoji: '⛸️' },
-            { word: 'skip', key: 'v', emoji: '🪢' },
-            { word: 'snail', key: 'n', emoji: '🐌' },
-            { word: 'snow', key: 'n+v', emoji: '❄️' },
-            { word: 'soup', key: 'n', emoji: '🥣' },
-            { word: 'stomach', key: 'n', emoji: '🍕' },
-            { word: 'straight', key: 'adj', emoji: '📏' },
-            { word: 'supermarket', key: 'n', emoji: '🛒' },
-            { word: 'swimsuit', key: 'n', emoji: '🩱' },
-            { word: 'tea', key: 'n', emoji: '🍵' },
-            { word: 'teach', key: 'v', emoji: '👨‍🏫' },
-            { word: 'terrible', key: 'adj', emoji: '😫' },
-            { word: 'thirsty', key: 'adj', emoji: '🥤' },
-            { word: 'treasure', key: 'n', emoji: '💰' },
-            { word: 'uncle', key: 'n', emoji: '🧔' },
-            { word: 'upstairs', key: 'adv+n', emoji: '🏠' },
-            { word: 'vegetable', key: 'n', emoji: '🥦' },
-            { word: 'wait', key: 'v', emoji: '⏳' },
-            { word: 'waterfall', key: 'n', emoji: '⛲' },
-            { word: 'weak', key: 'adj', emoji: '🍃' },
-            { word: 'whale', key: 'n', emoji: '🐋' },
-            { word: 'windy', key: 'adj', emoji: '🌬️' },
-            { word: 'wrong', key: 'adj', emoji: '❗' },
-            { word: 'yesterday', key: 'adv+n', emoji: '📅' }
+            { word: 'above', key: 'prep', emoji: '⬆️' }, { word: 'address', key: 'n', emoji: '🏠' }, { word: 'afraid', key: 'adj', emoji: '😨' },
+            { word: 'after', key: 'prep', emoji: '⏰' }, { word: 'all right', key: 'adj+adv', emoji: '👌' }, { word: 'always', key: 'adv', emoji: '♾️' },
+            { word: 'asleep', key: 'adj', emoji: '😴' }, { word: 'awake', key: 'adj', emoji: '👀' }, { word: 'back', key: 'adj+adv+n', emoji: '🔙' },
+            { word: 'beard', key: 'n', emoji: '🧔' }, { word: 'blanket', key: 'n', emoji: '🛌' }, { word: 'boring', key: 'adj', emoji: '🥱' },
+            { word: 'bottle', key: 'n', emoji: '🍼' }, { word: 'bowl', key: 'n', emoji: '🥣' }, { word: 'brave', key: 'adj', emoji: '🦁' },
+            { word: 'brilliant', key: 'adj', emoji: '🌟' }, { word: 'build', key: 'v', emoji: '🧱' }, { word: 'bus station', key: 'n', emoji: '🚏' },
+            { word: 'cage', key: 'n', emoji: '🥅' }, { word: 'careful', key: 'adj', emoji: '⚠️' }, { word: 'carry', key: 'v', emoji: '📦' },
+            { word: 'catch', key: 'v', emoji: '🧤' }, { word: 'cheese', key: 'n', emoji: '🧀' }, { word: 'cinema', key: 'n', emoji: '🎬' },
+            { word: 'clever', key: 'adj', emoji: '💡' }, { word: 'climb', key: 'v', emoji: '🧗' }, { word: 'cloudy', key: 'adj', emoji: '☁️' },
+            { word: 'clown', key: 'n', emoji: '🤡' }, { word: 'cook', key: 'n+v', emoji: '👨‍🍳' }, { word: 'dangerous', key: 'adj', emoji: '🚫' },
+            { word: 'daughter', key: 'n', emoji: '👧' }, { word: 'dentist', key: 'n', emoji: '🦷' }, { word: 'difficult', key: 'adj', emoji: '🧠' },
+            { word: 'dolphin', key: 'n', emoji: '🐬' }, { word: 'dream', key: 'n+v', emoji: '💭' }, { word: 'drive', key: 'v', emoji: '🚗' },
+            { word: 'earache', key: 'n', emoji: '👂' }, { word: 'elevator', key: 'n', emoji: '🛗' }, { word: 'exciting', key: 'adj', emoji: '🤩' },
+            { word: 'farmer', key: 'n', emoji: '👨‍🌾' }, { word: 'forest', key: 'n', emoji: '🌲' }, { word: 'frightened', key: 'adj', emoji: '😱' },
+            { word: 'glass', key: 'n', emoji: '🥛' }, { word: 'grandparent', key: 'n', emoji: '👵' }, { word: 'grass', key: 'n', emoji: '🌱' },
+            { word: 'headache', key: 'n', emoji: '🤕' }, { word: 'helmet', key: 'n', emoji: '🪖' }, { word: 'holiday', key: 'n', emoji: '🏖️' },
+            { word: 'hospital', key: 'n', emoji: '🏥' }, { word: 'hungry', key: 'adj', emoji: '😋' }, { word: 'island', key: 'n', emoji: '🏝️' },
+            { word: 'jungle', key: 'n', emoji: '🌳' }, { word: 'kangaroo', key: 'n', emoji: '🦘' }, { word: 'kick', key: 'v', emoji: '⚽' },
+            { word: 'kitten', key: 'n', emoji: '🐱' }, { word: 'laptop', key: 'n', emoji: '💻' }, { word: 'library', key: 'n', emoji: '📚' },
+            { word: 'lion', key: 'n', emoji: '🦁' }, { word: 'market', key: 'n', emoji: '🍎' }, { word: 'mountain', key: 'n', emoji: '⛰️' },
+            { word: 'nurse', key: 'n', emoji: '👩‍⚕️' }, { word: 'pancake', key: 'n', emoji: '🥞' }, { word: 'panda', key: 'n', emoji: '🐼' },
+            { word: 'penguin', key: 'n', emoji: '🐧' }, { word: 'pirate', key: 'n', emoji: '🏴‍☠️' }, { word: 'playground', key: 'n', emoji: '🎠' },
+            { word: 'rainbow', key: 'n', emoji: '🌈' }, { word: 'river', key: 'n', emoji: '🌊' }, { word: 'shoulder', key: 'n', emoji: '💪' },
+            { word: 'skate', key: 'v', emoji: '⛸️' }, { word: 'snail', key: 'n', emoji: '🐌' }, { word: 'stomach', key: 'n', emoji: '🍕' },
+            { word: 'supermarket', key: 'n', emoji: '🛒' }, { word: 'treasure', key: 'n', emoji: '💰' }, { word: 'waterfall', key: 'n', emoji: '⛲' },
+            { word: 'whale', key: 'n', emoji: '🐋' }, { word: 'windy', key: 'adj', emoji: '🌬️' }, { word: 'yesterday', key: 'adv+n', emoji: '📅' }
         ];
 
         function App() {
             const [gameState, setGameState] = useState('menu');
             const [score, setScore] = useState(0);
             const [highScore, setHighScore] = useState(0);
+            const [feedback, setFeedback] = useState(null);
+            const [userInput, setUserInput] = useState('');
             
             const speak = (text) => {
                 if ('speechSynthesis' in window) {
                     window.speechSynthesis.cancel();
-                    const utterance = new SpeechSynthesisUtterance(text);
-                    utterance.lang = 'en-US';
-                    utterance.rate = 0.85;
-                    window.speechSynthesis.speak(utterance);
+                    const u = new SpeechSynthesisUtterance(text);
+                    u.lang = 'en-US';
+                    u.rate = 0.85;
+                    window.speechSynthesis.speak(u);
                 }
             };
 
+            // 記憶翻牌
             const [cards, setCards] = useState([]);
             const [flipped, setFlipped] = useState([]);
             const [solved, setSolved] = useState([]);
-            const [fallingWords, setFallingWords] = useState([]);
-            const [lives, setLives] = useState(3);
-            const [currentSpelling, setCurrentSpelling] = useState(null);
-            const [userInput, setUserInput] = useState('');
-            const [feedback, setFeedback] = useState(null);
-
-            const initMemoryGame = () => {
+            const initMemory = () => {
                 const selected = [...ALL_VOCAB].sort(() => 0.5 - Math.random()).slice(0, 6);
-                const gameCards = [
-                    ...selected.map(w => ({ ...w, type: 'word', id: `w-${w.word}-${Math.random()}` })),
-                    ...selected.map(w => ({ ...w, type: 'emoji', id: `e-${w.word}-${Math.random()}` }))
-                ].sort(() => 0.5 - Math.random());
-                setCards(gameCards);
-                setFlipped([]);
-                setSolved([]);
-                setScore(0);
-                setGameState('memory');
+                setCards([...selected.map(w => ({...w, type: 'word', id: Math.random()})),
+                          ...selected.map(w => ({...w, type: 'emoji', id: Math.random()}))].sort(() => 0.5 - Math.random()));
+                setFlipped([]); setSolved([]); setScore(0); setGameState('memory');
             };
 
-            const handleCardClick = (idx) => {
-                if (flipped.length === 2 || solved.includes(idx) || flipped.includes(idx)) return;
-                speak(cards[idx].word);
-                const nextFlipped = [...flipped, idx];
-                setFlipped(nextFlipped);
-                if (nextFlipped.length === 2) {
-                    if (cards[nextFlipped[0]].word === cards[nextFlipped[1]].word) {
-                        setSolved(s => [...s, ...nextFlipped]);
-                        setScore(s => s + 10);
-                        setFlipped([]);
-                        if (solved.length + 2 === cards.length) setTimeout(() => setGameState('gameOver'), 1000);
-                    } else {
-                        setTimeout(() => setFlipped([]), 1000);
-                    }
-                }
-            };
-
-            const initFallingGame = () => {
-                setFallingWords([]);
-                setLives(3);
-                setScore(0);
-                setGameState('falling');
-            };
-
-            useEffect(() => {
-                if (gameState !== 'falling') return;
-                const timer = setInterval(() => {
-                    const word = ALL_VOCAB[Math.floor(Math.random() * ALL_VOCAB.length)];
-                    setFallingWords(prev => [...prev, { ...word, id: Date.now(), x: Math.random() * 80 + 10, y: -10 }]);
-                }, 2500);
-                const mover = setInterval(() => {
-                    setFallingWords(prev => {
-                        const next = prev.map(w => ({ ...w, y: w.y + 0.8 }));
-                        if (next.some(w => w.y > 100)) {
-                            setLives(l => l - 1);
-                            return next.filter(w => w.y <= 100);
-                        }
-                        return next;
-                    });
-                }, 50);
-                return () => { clearInterval(timer); clearInterval(mover); };
-            }, [gameState]);
-
-            useEffect(() => { if (lives <= 0 && gameState === 'falling') setGameState('gameOver'); }, [lives]);
-
-            const initSpellingGame = () => {
+            // 拼字大師 (全拼)
+            const [currentWord, setCurrentWord] = useState(null);
+            const initSpelling = () => {
                 const word = ALL_VOCAB[Math.floor(Math.random() * ALL_VOCAB.length)];
-                setCurrentSpelling(word);
-                setUserInput('');
-                setFeedback(null);
-                setScore(0);
-                setGameState('spelling');
+                setCurrentWord(word); setUserInput(''); setFeedback(null); setScore(0); setGameState('spelling');
                 setTimeout(() => speak(word.word), 500);
             };
 
-            const checkSpelling = () => {
-                if (userInput.toLowerCase().trim() === currentSpelling.word.toLowerCase()) {
-                    setFeedback('correct');
-                    setScore(s => s + 20);
-                    speak("Great job!");
+            // 拼字填空賽 (Masked)
+            const [maskedWord, setMaskedWord] = useState("");
+            const initFillBlanks = () => {
+                const wordObj = ALL_VOCAB[Math.floor(Math.random() * ALL_VOCAB.length)];
+                setCurrentWord(wordObj);
+                const word = wordObj.word;
+                // 挖空邏輯：保留頭尾，中間挖掉
+                let masked = "";
+                for (let i = 0; i < word.length; i++) {
+                    if (i === 0 || i === word.length - 1 || word[i] === ' ') {
+                        masked += word[i];
+                    } else {
+                        masked += "_";
+                    }
+                }
+                setMaskedWord(masked); setUserInput(''); setFeedback(null); setScore(0); setGameState('fillBlanks');
+                setTimeout(() => speak(word), 500);
+            };
+
+            const checkAnswer = (mode) => {
+                if (userInput.toLowerCase().trim() === currentWord.word.toLowerCase()) {
+                    setFeedback('correct'); setScore(s => s + 20); speak("Excellent!");
                     setTimeout(() => {
-                        const word = ALL_VOCAB[Math.floor(Math.random() * ALL_VOCAB.length)];
-                        setCurrentSpelling(word);
-                        setUserInput('');
-                        setFeedback(null);
-                        speak(word.word);
-                    }, 1500);
+                        const next = ALL_VOCAB[Math.floor(Math.random() * ALL_VOCAB.length)];
+                        setCurrentWord(next); setUserInput(''); setFeedback(null);
+                        if (mode === 'fillBlanks') {
+                            let m = "";
+                            for(let i=0; i<next.word.length; i++) m += (i===0 || i===next.word.length-1 || next.word[i]===' ') ? next.word[i] : "_";
+                            setMaskedWord(m);
+                        }
+                        speak(next.word);
+                    }, 1200);
                 } else {
-                    setFeedback('wrong');
-                    speak("Try again");
-                    setTimeout(() => setFeedback(null), 1000);
+                    setFeedback('wrong'); speak("Try again");
+                    setTimeout(() => setFeedback(null), 800);
                 }
             };
 
             return (
                 <div className="min-h-screen flex flex-col items-center p-4">
-                    {/* Header */}
                     <div className="w-full max-w-md bg-white rounded-2xl shadow-sm p-4 mb-4 flex justify-between items-center border-b-4 border-indigo-100">
-                        <div className="flex items-center gap-2 font-bold text-slate-600">🏆 {score}</div>
-                        <div className="text-xl font-black text-indigo-600 tracking-tight">Movers Master</div>
-                        <div className="flex items-center gap-2 font-bold text-slate-600">⭐ {highScore}</div>
+                        <div className="font-bold text-slate-600">🏆 {score}</div>
+                        <div className="text-xl font-black text-indigo-600">Movers 單字王</div>
+                        <div className="font-bold text-slate-600">⭐ {highScore}</div>
                     </div>
 
-                    {/* Game Stage */}
-                    <div className="w-full max-w-md bg-white rounded-3xl shadow-xl overflow-hidden relative border-b-8 border-indigo-200 game-container" style={{ height: '580px' }}>
+                    <div className="w-full max-w-md bg-white rounded-3xl shadow-xl overflow-hidden relative border-b-8 border-indigo-200" style={{ height: '560px' }}>
                         
                         {gameState === 'menu' && (
-                            <div className="h-full flex flex-col items-center justify-center p-6 text-center">
-                                <div className="text-6xl mb-6 scale-110">🎖️</div>
-                                <h2 className="text-3xl font-black text-slate-800 mb-2">Movers 單字王</h2>
-                                <p className="text-slate-500 mb-8 font-medium">適合手機與平板挑戰！</p>
-                                <div className="grid gap-3 w-full">
-                                    <button onClick={initMemoryGame} className="bg-sky-500 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition-all">🧠 記憶翻牌</button>
-                                    <button onClick={initFallingGame} className="bg-orange-500 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition-all">⚡ 單字反應賽</button>
-                                    <button onClick={initSpellingGame} className="bg-emerald-500 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition-all">⌨️ 拼字大師</button>
-                                </div>
-                                <div className="mt-6 text-[10px] text-slate-400">
-                                    註：n=名詞, v=動詞, adj=形容詞, adv=副詞
+                            <div className="h-full flex flex-col items-center justify-center p-8 text-center">
+                                <div className="text-6xl mb-6">🏫</div>
+                                <h2 className="text-2xl font-black text-slate-800 mb-2">單字挑戰賽</h2>
+                                <p className="text-slate-500 mb-8 font-medium">選擇關卡開始練習</p>
+                                <div className="grid gap-4 w-full">
+                                    <button onClick={initMemory} className="bg-sky-500 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition-all">🧠 記憶翻牌 (Movers A-Z)</button>
+                                    <button onClick={initSpelling} className="bg-emerald-500 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition-all">⌨️ 拼字大師 (全拼練習)</button>
+                                    <button onClick={initFillBlanks} className="bg-orange-500 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition-all">🧩 拼字填空賽 (Masked)</button>
                                 </div>
                             </div>
                         )}
 
                         {gameState === 'memory' && (
-                            <div className="h-full p-3 flex flex-col">
-                                <div className="grid grid-cols-3 gap-2 flex-grow">
-                                    {cards.map((card, i) => (
-                                        <div key={card.id} onClick={() => handleCardClick(i)} 
-                                            className={`cursor-pointer rounded-xl flex flex-col items-center justify-center transition-all duration-300 shadow-sm ${flipped.includes(i) || solved.includes(i) ? 'bg-white border-2 border-sky-300 scale-100' : 'bg-sky-500 text-transparent scale-95'}`}>
-                                            {(flipped.includes(i) || solved.includes(i)) && (
-                                                card.type === 'word' ? (
-                                                    <div className="text-center px-1">
-                                                        <div className="text-[11px] font-black text-sky-800 break-words leading-tight">{card.word}</div>
-                                                        <div className="text-[9px] text-sky-400 mt-1 uppercase">({card.key})</div>
-                                                    </div>
-                                                ) : <span className="text-3xl">{card.emoji}</span>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                                <button onClick={()=>setGameState('menu')} className="mt-3 text-slate-400 text-sm py-2 active:bg-slate-50 rounded-lg">放棄並返回</button>
-                            </div>
-                        )}
-
-                        {gameState === 'falling' && (
-                            <div className="h-full relative bg-sky-50 overflow-hidden">
-                                <div className="absolute top-4 left-4 z-10 flex gap-1">
-                                    {[...Array(3)].map((_, i) => <span key={i} className="text-lg">{i < lives ? '❤️' : '🖤'}</span>)}
-                                </div>
-                                {fallingWords.map(w => (
-                                    <button key={w.id} onClick={() => {speak(w.word); setScore(s=>s+5); setFallingWords(p=>p.filter(x=>x.id!==w.id))}}
-                                        className="absolute transform -translate-x-1/2 bg-white px-3 py-2 rounded-full shadow-lg border-2 border-indigo-100 font-bold flex items-center gap-2 falling-word active:scale-90"
-                                        style={{ left: `${w.x}%`, top: `${w.y}%` }}>
-                                        <span className="text-base">{w.emoji}</span> 
-                                        <span className="text-sm">{w.word}</span>
-                                    </button>
+                            <div className="h-full p-4 grid grid-cols-3 gap-3">
+                                {cards.map((card, i) => (
+                                    <div key={card.id} onClick={() => {
+                                        if (flipped.length === 2 || solved.includes(i) || flipped.includes(i)) return;
+                                        speak(card.word);
+                                        const nf = [...flipped, i]; setFlipped(nf);
+                                        if (nf.length === 2) {
+                                            if (cards[nf[0]].word === cards[nf[1]].word) {
+                                                setSolved(s => [...s, ...nf]); setScore(s => s + 10); setFlipped([]);
+                                                if (solved.length + 2 === cards.length) setTimeout(() => setGameState('gameOver'), 1000);
+                                            } else { setTimeout(() => setFlipped([]), 1000); }
+                                        }
+                                    }} className={`cursor-pointer rounded-xl flex flex-col items-center justify-center transition-all duration-300 ${flipped.includes(i) || solved.includes(i) ? 'bg-white border-2 border-sky-300' : 'bg-sky-500 text-transparent'}`}>
+                                        {(flipped.includes(i) || solved.includes(i)) && (
+                                            card.type === 'word' ? <div className="text-[10px] font-bold text-sky-800 text-center uppercase">{card.word}<br/><span className="text-[8px] opacity-50">({card.key})</span></div> : <span className="text-3xl">{card.emoji}</span>
+                                        )}
+                                    </div>
                                 ))}
-                                <div className="absolute bottom-4 left-0 w-full text-center">
-                                    <button onClick={()=>setGameState('menu')} className="text-slate-400 text-xs px-4 py-2 bg-white/50 rounded-full">結束遊戲</button>
-                                </div>
                             </div>
                         )}
 
-                        {gameState === 'spelling' && currentSpelling && (
-                            <div className="h-full flex flex-col items-center justify-center p-5 text-center">
-                                <span className="text-[10px] bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full uppercase font-bold mb-2">{currentSpelling.key}</span>
-                                <div className="text-7xl mb-4">{currentSpelling.emoji}</div>
-                                <button onClick={() => speak(currentSpelling.word)} className="mb-6 bg-indigo-50 p-4 rounded-full text-indigo-600 active:bg-indigo-200">🔊 點擊發音</button>
-                                <input autoFocus type="text" value={userInput} onChange={e => setUserInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && checkSpelling()}
-                                    placeholder="輸入單字..."
-                                    className={`w-full text-center text-2xl font-bold p-3 border-4 rounded-2xl outline-none transition-all ${feedback==='correct'?'border-emerald-400 bg-emerald-50':feedback==='wrong'?'border-red-400 bg-red-50 animate-shake':'border-slate-100'}`} />
-                                <div className="mt-6 flex gap-3 w-full">
-                                    <button onClick={checkSpelling} className="flex-1 bg-indigo-500 text-white font-bold py-4 rounded-xl shadow-lg active:scale-95">檢查</button>
-                                    <button onClick={() => {speak(`It is ${currentSpelling.word}`); setUserInput(currentSpelling.word[0] + '...')}} className="bg-slate-100 p-4 rounded-xl text-slate-400">💡</button>
+                        {(gameState === 'spelling' || gameState === 'fillBlanks') && currentWord && (
+                            <div className="h-full flex flex-col items-center justify-center p-6 text-center">
+                                <div className="text-xs bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full uppercase font-bold mb-4">{currentWord.key}</div>
+                                <div className="text-8xl mb-4">{currentWord.emoji}</div>
+                                
+                                {gameState === 'fillBlanks' && (
+                                    <div className="text-4xl font-mono tracking-widest text-indigo-500 mb-6 font-black">
+                                        {maskedWord.split('').map((char, i) => (
+                                            <span key={i} className={char === '_' ? 'border-b-4 border-indigo-200 mx-1' : ''}>{char}</span>
+                                        ))}
+                                    </div>
+                                )}
+
+                                <button onClick={() => speak(currentWord.word)} className="mb-6 bg-indigo-50 p-4 rounded-full text-indigo-600 active:bg-indigo-100">🔊 點擊朗讀</button>
+                                
+                                <input autoFocus type="text" value={userInput} onChange={e => setUserInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && checkAnswer(gameState)}
+                                    placeholder={gameState === 'fillBlanks' ? "補全單字..." : "拼出單字..."}
+                                    className={`w-full text-center text-3xl font-bold p-4 border-4 rounded-2xl outline-none transition-all ${feedback==='correct'?'border-emerald-400 bg-emerald-50':feedback==='wrong'?'border-red-400 bg-red-50 animate-shake':'border-slate-100 shadow-inner'}`} />
+                                
+                                <div className="mt-8 flex gap-4 w-full">
+                                    <button onClick={() => checkAnswer(gameState)} className="flex-1 bg-indigo-500 text-white font-bold py-4 rounded-xl shadow-lg">檢查答案</button>
+                                    <button onClick={() => setGameState('menu')} className="bg-slate-100 p-4 rounded-xl text-slate-400">🏠</button>
                                 </div>
-                                <button onClick={()=>setGameState('menu')} className="mt-8 text-slate-400 text-xs">返回主畫面</button>
                             </div>
                         )}
 
                         {gameState === 'gameOver' && (
                             <div className="h-full flex flex-col items-center justify-center p-8 text-center">
-                                <div className="text-7xl mb-4">🏆</div>
-                                <h2 className="text-2xl font-black text-slate-800 mb-1">闖關成功！</h2>
-                                <p className="text-lg text-slate-500 mb-8">獲得了 {score} 分</p>
-                                <button onClick={() => {if(score > highScore) setHighScore(score); setGameState('menu')}}
-                                    className="bg-indigo-600 text-white font-bold py-4 px-12 rounded-full shadow-xl active:scale-95 transition-all">重新開始</button>
+                                <div className="text-7xl mb-6">🎉</div>
+                                <h2 className="text-3xl font-black text-slate-800 mb-2">挑戰成功！</h2>
+                                <p className="text-xl text-slate-500 mb-8">你一共得到了 {score} 分</p>
+                                <button onClick={() => { if(score > highScore) setHighScore(score); setGameState('menu'); }}
+                                    className="bg-indigo-600 text-white font-bold py-3 px-10 rounded-full shadow-lg">回主選單</button>
                             </div>
                         )}
-                    </div>
-                    <div className="mt-6 text-slate-400 text-[10px] text-center max-w-xs leading-relaxed">
-                        提示：在手機上若沒有聲音，請確認手機是否處於靜音模式或開啟媒體音量。
                     </div>
                 </div>
             );
