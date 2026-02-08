@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Movers 單字王 - 隨機拼字挑戰版</title>
+    <title>Movers 單字王 - 全單字挑戰版</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -21,33 +21,77 @@
     <script type="text/babel">
         const { useState, useEffect, useCallback } = React;
 
+        // 整理自圖片的完整單字庫 (選取具代表性且易於遊戲化的詞彙)
         const ALL_VOCAB = [
+            // A
             { word: 'above', key: 'prep', emoji: '⬆️' }, { word: 'address', key: 'n', emoji: '🏠' }, { word: 'afraid', key: 'adj', emoji: '😨' },
             { word: 'after', key: 'prep', emoji: '⏰' }, { word: 'all right', key: 'adj+adv', emoji: '👌' }, { word: 'always', key: 'adv', emoji: '♾️' },
-            { word: 'asleep', key: 'adj', emoji: '😴' }, { word: 'awake', key: 'adj', emoji: '👀' }, { word: 'back', key: 'adj+adv+n', emoji: '🔙' },
-            { word: 'beard', key: 'n', emoji: '🧔' }, { word: 'blanket', key: 'n', emoji: '🛌' }, { word: 'boring', key: 'adj', emoji: '🥱' },
-            { word: 'bottle', key: 'n', emoji: '🍼' }, { word: 'bowl', key: 'n', emoji: '🥣' }, { word: 'brave', key: 'adj', emoji: '🦁' },
-            { word: 'brilliant', key: 'adj', emoji: '🌟' }, { word: 'build', key: 'v', emoji: '🧱' }, { word: 'bus station', key: 'n', emoji: '🚏' },
-            { word: 'cage', key: 'n', emoji: '🥅' }, { word: 'careful', key: 'adj', emoji: '⚠️' }, { word: 'carry', key: 'v', emoji: '📦' },
-            { word: 'catch', key: 'v', emoji: '🧤' }, { word: 'cheese', key: 'n', emoji: '🧀' }, { word: 'cinema', key: 'n', emoji: '🎬' },
-            { word: 'clever', key: 'adj', emoji: '💡' }, { word: 'climb', key: 'v', emoji: '🧗' }, { word: 'cloudy', key: 'adj', emoji: '☁️' },
-            { word: 'clown', key: 'n', emoji: '🤡' }, { word: 'cook', key: 'n+v', emoji: '👨‍🍳' }, { word: 'dangerous', key: 'adj', emoji: '🚫' },
-            { word: 'daughter', key: 'n', emoji: '👧' }, { word: 'dentist', key: 'n', emoji: '🦷' }, { word: 'difficult', key: 'adj', emoji: '🧠' },
-            { word: 'dolphin', key: 'n', emoji: '🐬' }, { word: 'dream', key: 'n+v', emoji: '💭' }, { word: 'drive', key: 'v', emoji: '🚗' },
-            { word: 'earache', key: 'n', emoji: '👂' }, { word: 'elevator', key: 'n', emoji: '🛗' }, { word: 'exciting', key: 'adj', emoji: '🤩' },
-            { word: 'farmer', key: 'n', emoji: '👨‍🌾' }, { word: 'forest', key: 'n', emoji: '🌲' }, { word: 'frightened', key: 'adj', emoji: '😱' },
-            { word: 'glass', key: 'n', emoji: '🥛' }, { word: 'grandparent', key: 'n', emoji: '👵' }, { word: 'grass', key: 'n', emoji: '🌱' },
+            { word: 'another', key: 'det+pron', emoji: '➕' }, { word: 'any', key: 'det+pron', emoji: '❓' }, { word: 'app', key: 'n', emoji: '📱' },
+            { word: 'around', key: 'prep', emoji: '🔄' }, { word: 'asleep', key: 'adj', emoji: '😴' }, { word: 'awake', key: 'adj', emoji: '👀' },
+            // B
+            { word: 'back', key: 'n', emoji: '🔙' }, { word: 'badly', key: 'adv', emoji: '👎' }, { word: 'balcony', key: 'n', emoji: '🏙️' },
+            { word: 'basement', key: 'n', emoji: '📉' }, { word: 'bat', key: 'n', emoji: '🦇' }, { word: 'beard', key: 'n', emoji: '🧔' },
+            { word: 'blanket', key: 'n', emoji: '🛌' }, { word: 'boring', key: 'adj', emoji: '🥱' }, { word: 'bottle', key: 'n', emoji: '🍼' },
+            { word: 'bowl', key: 'n', emoji: '🥣' }, { word: 'brave', key: 'adj', emoji: '🦁' }, { word: 'brilliant', key: 'adj', emoji: '🌟' },
+            { word: 'bring', key: 'v', emoji: '🎁' }, { word: 'build', key: 'v', emoji: '🧱' }, { word: 'building', key: 'n', emoji: '🏢' },
+            { word: 'bus station', key: 'n', emoji: '🚏' }, { word: 'bus stop', key: 'n', emoji: '🚌' }, { word: 'busy', key: 'adj', emoji: '🏃' },
+            { word: 'buy', key: 'v', emoji: '🛍️' },
+            // C
+            { word: 'cafe', key: 'n', emoji: '☕' }, { word: 'cage', key: 'n', emoji: '🥅' }, { word: 'call', key: 'v', emoji: '📞' },
+            { word: 'careful', key: 'adj', emoji: '⚠️' }, { word: 'carry', key: 'v', emoji: '📦' }, { word: 'catch', key: 'v', emoji: '🧤' },
+            { word: 'cheese', key: 'n', emoji: '🧀' }, { word: 'cinema', key: 'n', emoji: '🎬' }, { word: 'circle', key: 'n', emoji: '⭕' },
+            { word: 'city', key: 'n', emoji: '🏙️' }, { word: 'climb', key: 'v', emoji: '🧗' }, { word: 'cloud', key: 'n', emoji: '☁️' },
+            { word: 'clown', key: 'n', emoji: '🤡' }, { word: 'coat', key: 'n', emoji: '🧥' }, { word: 'coffee', key: 'n', emoji: '☕' },
+            { word: 'cold', key: 'adj', emoji: '❄️' }, { word: 'comic book', key: 'n', emoji: '📖' }, { word: 'cook', key: 'v', emoji: '👨‍🍳' },
+            { word: 'country', key: 'n', emoji: '🗺️' }, { word: 'cry', key: 'v', emoji: '😢' }, { word: 'cup', key: 'n', emoji: '☕' },
+            // D-F
+            { word: 'dance', key: 'v', emoji: '💃' }, { word: 'dangerous', key: 'adj', emoji: '🚫' }, { word: 'dentist', key: 'n', emoji: '🦷' },
+            { word: 'difficult', key: 'adj', emoji: '🧠' }, { word: 'dolphin', key: 'n', emoji: '🐬' }, { word: 'dream', key: 'n', emoji: '💭' },
+            { word: 'drive', key: 'v', emoji: '🚗' }, { word: 'earache', key: 'n', emoji: '👂' }, { word: 'elevator', key: 'n', emoji: '🛗' },
+            { word: 'email', key: 'n+v', emoji: '📧' }, { word: 'exciting', key: 'adj', emoji: '🤩' }, { word: 'famous', key: 'adj', emoji: '⭐' },
+            { word: 'farm', key: 'n', emoji: '🚜' }, { word: 'farmer', key: 'n', emoji: '👨‍🌾' }, { word: 'field', key: 'n', emoji: '⛳' },
+            { word: 'fish', key: 'n', emoji: '🐟' }, { word: 'fix', key: 'v', emoji: '🔧' }, { word: 'forest', key: 'n', emoji: '🌲' },
+            { word: 'frightened', key: 'adj', emoji: '😱' },
+            // G-I
+            { word: 'glass', key: 'n', emoji: '🥛' }, { word: 'goal', key: 'n', emoji: '🥅' }, { word: 'grandparent', key: 'n', emoji: '👵' },
+            { word: 'grass', key: 'n', emoji: '🌱' }, { word: 'ground', key: 'n', emoji: '🌍' }, { word: 'grown-up', key: 'n', emoji: '👨' },
             { word: 'headache', key: 'n', emoji: '🤕' }, { word: 'helmet', key: 'n', emoji: '🪖' }, { word: 'holiday', key: 'n', emoji: '🏖️' },
-            { word: 'hospital', key: 'n', emoji: '🏥' }, { word: 'hungry', key: 'adj', emoji: '😋' }, { word: 'island', key: 'n', emoji: '🏝️' },
+            { word: 'homework', key: 'n', emoji: '📚' }, { word: 'hospital', key: 'n', emoji: '🏥' }, { word: 'hungry', key: 'adj', emoji: '😋' },
+            { word: 'hurt', key: 'v', emoji: '🩹' }, { word: 'ice', key: 'n', emoji: '🧊' }, { word: 'ice skates', key: 'n', emoji: '🛼' },
+            { word: 'internet', key: 'n', emoji: '🌐' }, { word: 'island', key: 'n', emoji: '🏝️' },
+            // J-L
             { word: 'jungle', key: 'n', emoji: '🌳' }, { word: 'kangaroo', key: 'n', emoji: '🦘' }, { word: 'kick', key: 'v', emoji: '⚽' },
-            { word: 'kitten', key: 'n', emoji: '🐱' }, { word: 'laptop', key: 'n', emoji: '💻' }, { word: 'library', key: 'n', emoji: '📚' },
-            { word: 'lion', key: 'n', emoji: '🦁' }, { word: 'market', key: 'n', emoji: '🍎' }, { word: 'mountain', key: 'n', emoji: '⛰️' },
-            { word: 'nurse', key: 'n', emoji: '👩‍⚕️' }, { word: 'pancake', key: 'n', emoji: '🥞' }, { word: 'panda', key: 'n', emoji: '🐼' },
-            { word: 'penguin', key: 'n', emoji: '🐧' }, { word: 'pirate', key: 'n', emoji: '🏴‍☠️' }, { word: 'playground', key: 'n', emoji: '🎠' },
-            { word: 'rainbow', key: 'n', emoji: '🌈' }, { word: 'river', key: 'n', emoji: '🌊' }, { word: 'shoulder', key: 'n', emoji: '💪' },
-            { word: 'skate', key: 'v', emoji: '⛸️' }, { word: 'snail', key: 'n', emoji: '🐌' }, { word: 'stomach', key: 'n', emoji: '🍕' },
-            { word: 'supermarket', key: 'n', emoji: '🛒' }, { word: 'treasure', key: 'n', emoji: '💰' }, { word: 'waterfall', key: 'n', emoji: '⛲' },
-            { word: 'whale', key: 'n', emoji: '🐋' }, { word: 'windy', key: 'adj', emoji: '🌬️' }, { word: 'yesterday', key: 'adv+n', emoji: '📅' }
+            { word: 'kitten', key: 'n', emoji: '🐱' }, { word: 'lake', key: 'n', emoji: '🏞️' }, { word: 'laptop', key: 'n', emoji: '💻' },
+            { word: 'library', key: 'n', emoji: '📚' }, { word: 'lion', key: 'n', emoji: '🦁' }, { word: 'loudly', key: 'adv', emoji: '📢' },
+            // M-P
+            { word: 'market', key: 'n', emoji: '🍎' }, { word: 'milkshake', key: 'n', emoji: '🥤' }, { word: 'mistake', key: 'n', emoji: '❌' },
+            { word: 'moon', key: 'n', emoji: '🌙' }, { word: 'mountain', key: 'n', emoji: '⛰️' }, { word: 'moustache', key: 'n', emoji: '🧔' },
+            { word: 'naughty', key: 'adj', emoji: '😈' }, { word: 'neck', key: 'n', emoji: '🦒' }, { word: 'noise', key: 'n', emoji: '🔊' },
+            { word: 'noodles', key: 'n', emoji: '🍜' }, { word: 'nurse', key: 'n', emoji: '👩‍⚕️' }, { word: 'opposite', key: 'prep', emoji: '↔️' },
+            { word: 'outside', key: 'adv', emoji: '🌳' }, { word: 'pancake', key: 'n', emoji: '🥞' }, { word: 'panda', key: 'n', emoji: '🐼' },
+            { word: 'penguin', key: 'n', emoji: '🐧' }, { word: 'picnic', key: 'n', emoji: '🧺' }, { word: 'pirate', key: 'n', emoji: '🏴‍☠️' },
+            { word: 'playground', key: 'n', emoji: '🎠' }, { word: 'pretty', key: 'adj', emoji: '🦋' },
+            // Q-S
+            { word: 'quick', key: 'adj', emoji: '⚡' }, { word: 'quiet', key: 'adj', emoji: '🤫' }, { word: 'rainbow', key: 'n', emoji: '🌈' },
+            { word: 'ride', key: 'v', emoji: '🚲' }, { word: 'river', key: 'n', emoji: '🌊' }, { word: 'road', key: 'n', emoji: '🛣️' },
+            { word: 'roller skates', key: 'n', emoji: '🛼' }, { word: 'roof', key: 'n', emoji: '🏠' }, { word: 'safe', key: 'adj', emoji: '🛡️' },
+            { word: 'salad', key: 'n', emoji: '🥗' }, { word: 'sandwich', key: 'n', emoji: '🥪' }, { word: 'sauce', key: 'n', emoji: '🥫' },
+            { word: 'scarf', key: 'n', emoji: '🧣' }, { word: 'shoulder', key: 'n', emoji: '💪' }, { word: 'shower', key: 'n', emoji: '🚿' },
+            { word: 'skate', key: 'v', emoji: '⛸️' }, { word: 'skip', key: 'v', emoji: '🪢' }, { word: 'slowly', key: 'adv', emoji: '🐢' },
+            { word: 'snail', key: 'n', emoji: '🐌' }, { word: 'snow', key: 'n', emoji: '❄️' }, { word: 'soup', key: 'n', emoji: '🥣' },
+            { word: 'station', key: 'n', emoji: '🚉' }, { word: 'stomach', key: 'n', emoji: '🍕' }, { word: 'straight', key: 'adj', emoji: '📏' },
+            { word: 'supermarket', key: 'n', emoji: '🛒' }, { word: 'surprised', key: 'adj', emoji: '😲' }, { word: 'sweater', key: 'n', emoji: '👕' },
+            { word: 'swim', key: 'v', emoji: '🏊' }, { word: 'swimsuit', key: 'n', emoji: '🩱' },
+            // T-Z
+            { word: 'tea', key: 'n', emoji: '🍵' }, { word: 'teach', key: 'v', emoji: '👨‍🏫' }, { word: 'temperature', key: 'n', emoji: '🤒' },
+            { word: 'terrible', key: 'adj', emoji: '😫' }, { word: 'text', key: 'n+v', emoji: '📱' }, { word: 'thirsty', key: 'adj', emoji: '🥤' },
+            { word: 'ticket', key: 'n', emoji: '🎟️' }, { word: 'toothache', key: 'n', emoji: '🦷' }, { word: 'toothbrush', key: 'n', emoji: '🪥' },
+            { word: 'toothpaste', key: 'n', emoji: '🧴' }, { word: 'towel', key: 'n', emoji: '🧼' }, { word: 'tractor', key: 'n', emoji: '🚜' },
+            { word: 'treasure', key: 'n', emoji: '💰' }, { word: 'uncle', key: 'n', emoji: '🧔' }, { word: 'upstairs', key: 'adv', emoji: '🏠' },
+            { word: 'vegetable', key: 'n', emoji: '🥦' }, { word: 'video', key: 'n', emoji: '📹' }, { word: 'waterfall', key: 'n', emoji: '⛲' },
+            { word: 'weak', key: 'adj', emoji: '🍃' }, { word: 'weather', key: 'n', emoji: '🌦️' }, { word: 'website', key: 'n', emoji: '💻' },
+            { word: 'whale', key: 'n', emoji: '🐋' }, { word: 'windy', key: 'adj', emoji: '🌬️' }, { word: 'world', key: 'n', emoji: '🌍' },
+            { word: 'wrong', key: 'adj', emoji: '❗' }, { word: 'yesterday', key: 'adv', emoji: '📅' }
         ];
 
         function App() {
@@ -75,12 +119,11 @@
                 let hasBlank = false;
                 let hasLetter = false;
 
-                // 嘗試產生隨機遮罩
                 for (let i = 0; i < word.length; i++) {
                     if (word[i] === ' ') {
                         masked += ' ';
                     } else {
-                        // 約 50% 機率挖空
+                        // 約 50% 機率挖空，但這只是初步決定
                         const shouldMask = Math.random() > 0.5;
                         if (shouldMask) {
                             masked += "_";
@@ -110,10 +153,6 @@
                 return masked;
             };
 
-            // 記憶翻牌
-            const [cards, setCards] = useState([]);
-            const [flipped, setFlipped] = useState([]);
-            const [solved, setSolved] = useState([]);
             const initMemory = () => {
                 const selected = [...ALL_VOCAB].sort(() => 0.5 - Math.random()).slice(0, 6);
                 setCards([...selected.map(w => ({...w, type: 'word', id: Math.random()})),
@@ -121,14 +160,12 @@
                 setFlipped([]); setSolved([]); setScore(0); setGameState('memory');
             };
 
-            // 拼字大師 (全拼)
             const initSpelling = () => {
                 const word = ALL_VOCAB[Math.floor(Math.random() * ALL_VOCAB.length)];
                 setCurrentWord(word); setUserInput(''); setFeedback(null); setScore(0); setGameState('spelling');
                 setTimeout(() => speak(word.word), 500);
             };
 
-            // 拼字填空賽 (隨機 Masked)
             const initFillBlanks = () => {
                 const wordObj = ALL_VOCAB[Math.floor(Math.random() * ALL_VOCAB.length)];
                 setCurrentWord(wordObj);
@@ -138,7 +175,10 @@
             };
 
             const checkAnswer = (mode) => {
-                if (userInput.toLowerCase().trim() === currentWord.word.toLowerCase()) {
+                const target = currentWord.word.toLowerCase();
+                const input = userInput.toLowerCase().trim();
+                
+                if (input === target) {
                     setFeedback('correct'); setScore(s => s + 20); speak("Excellent!");
                     setTimeout(() => {
                         const next = ALL_VOCAB[Math.floor(Math.random() * ALL_VOCAB.length)];
@@ -154,6 +194,10 @@
                 }
             };
 
+            const [cards, setCards] = useState([]);
+            const [flipped, setFlipped] = useState([]);
+            const [solved, setSolved] = useState([]);
+
             return (
                 <div className="min-h-screen flex flex-col items-center p-4">
                     <div className="w-full max-w-md bg-white rounded-2xl shadow-sm p-4 mb-4 flex justify-between items-center border-b-4 border-indigo-100">
@@ -166,13 +210,13 @@
                         
                         {gameState === 'menu' && (
                             <div className="h-full flex flex-col items-center justify-center p-8 text-center">
-                                <div className="text-6xl mb-6">🏫</div>
-                                <h2 className="text-2xl font-black text-slate-800 mb-2">單字挑戰賽</h2>
-                                <p className="text-slate-500 mb-8 font-medium">選擇關卡開始練習</p>
+                                <div className="text-6xl mb-6">🏛️</div>
+                                <h2 className="text-2xl font-black text-slate-800 mb-2">Movers 100+ 單字挑戰</h2>
+                                <p className="text-slate-500 mb-8 font-medium">挑戰圖片中所有的核心單字</p>
                                 <div className="grid gap-4 w-full">
-                                    <button onClick={initMemory} className="bg-sky-500 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition-all">🧠 記憶翻牌 (Movers A-Z)</button>
-                                    <button onClick={initSpelling} className="bg-emerald-500 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition-all">⌨️ 拼字大師 (全拼練習)</button>
-                                    <button onClick={initFillBlanks} className="bg-orange-500 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition-all">🧩 拼字填空賽 (隨機挖空)</button>
+                                    <button onClick={initMemory} className="bg-sky-500 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition-all">🧠 記憶翻牌 (Match)</button>
+                                    <button onClick={initSpelling} className="bg-emerald-500 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition-all">⌨️ 拼字大師 (Spell)</button>
+                                    <button onClick={initFillBlanks} className="bg-orange-500 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition-all">🧩 拼字填空賽 (Random Mask)</button>
                                 </div>
                             </div>
                         )}
@@ -190,48 +234,49 @@
                                                 if (solved.length + 2 === cards.length) setTimeout(() => setGameState('gameOver'), 1000);
                                             } else { setTimeout(() => setFlipped([]), 1000); }
                                         }
-                                    }} className={`cursor-pointer rounded-xl flex flex-col items-center justify-center transition-all duration-300 ${flipped.includes(i) || solved.includes(i) ? 'bg-white border-2 border-sky-300' : 'bg-sky-500 text-transparent'}`}>
+                                    }} className={`cursor-pointer rounded-xl flex flex-col items-center justify-center transition-all duration-300 ${flipped.includes(i) || solved.includes(i) ? 'bg-white border-2 border-sky-300 shadow-sm' : 'bg-sky-500 text-transparent'}`}>
                                         {(flipped.includes(i) || solved.includes(i)) && (
-                                            card.type === 'word' ? <div className="text-[10px] font-bold text-sky-800 text-center uppercase">{card.word}<br/><span className="text-[8px] opacity-50">({card.key})</span></div> : <span className="text-3xl">{card.emoji}</span>
+                                            card.type === 'word' ? <div className="text-[10px] font-bold text-sky-800 text-center uppercase px-1 break-words">{card.word}<br/><span className="text-[8px] opacity-50">({card.key})</span></div> : <span className="text-3xl">{card.emoji}</span>
                                         )}
                                     </div>
                                 ))}
+                                <button onClick={() => setGameState('menu')} className="col-span-3 mt-4 text-slate-400 text-xs">返回主單單</button>
                             </div>
                         )}
 
                         {(gameState === 'spelling' || gameState === 'fillBlanks') && currentWord && (
                             <div className="h-full flex flex-col items-center justify-center p-6 text-center">
                                 <div className="text-xs bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full uppercase font-bold mb-4">{currentWord.key}</div>
-                                <div className="text-8xl mb-4">{currentWord.emoji}</div>
+                                <div className="text-8xl mb-4 transform transition-transform hover:scale-110">{currentWord.emoji}</div>
                                 
                                 {gameState === 'fillBlanks' && (
-                                    <div className="text-4xl font-mono tracking-widest text-indigo-500 mb-6 font-black">
+                                    <div className="text-3xl font-mono tracking-widest text-indigo-500 mb-6 font-black break-all px-2">
                                         {maskedWord.split('').map((char, i) => (
-                                            <span key={i} className={char === '_' ? 'border-b-4 border-indigo-200 mx-1' : ''}>{char}</span>
+                                            <span key={i} className={char === '_' ? 'border-b-4 border-indigo-200 mx-1 inline-block w-6 text-center' : 'mx-0.5'}>{char}</span>
                                         ))}
                                     </div>
                                 )}
 
-                                <button onClick={() => speak(currentWord.word)} className="mb-6 bg-indigo-50 p-4 rounded-full text-indigo-600 active:bg-indigo-100">🔊 點擊朗讀</button>
+                                <button onClick={() => speak(currentWord.word)} className="mb-6 bg-indigo-50 p-4 rounded-full text-indigo-600 active:bg-indigo-100">🔊 聽發音</button>
                                 
                                 <input autoFocus type="text" value={userInput} onChange={e => setUserInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && checkAnswer(gameState)}
-                                    placeholder={gameState === 'fillBlanks' ? "補全單字..." : "拼出單字..."}
-                                    className={`w-full text-center text-3xl font-bold p-4 border-4 rounded-2xl outline-none transition-all ${feedback==='correct'?'border-emerald-400 bg-emerald-50':feedback==='wrong'?'border-red-400 bg-red-50 animate-shake':'border-slate-100 shadow-inner'}`} />
+                                    placeholder={gameState === 'fillBlanks' ? "補全單字..." : "輸入完整單字..."}
+                                    className={`w-full text-center text-2xl font-bold p-4 border-4 rounded-2xl outline-none transition-all ${feedback==='correct'?'border-emerald-400 bg-emerald-50':feedback==='wrong'?'border-red-400 bg-red-50 animate-shake':'border-slate-100 shadow-inner'}`} />
                                 
                                 <div className="mt-8 flex gap-4 w-full">
-                                    <button onClick={() => checkAnswer(gameState)} className="flex-1 bg-indigo-500 text-white font-bold py-4 rounded-xl shadow-lg">檢查答案</button>
-                                    <button onClick={() => setGameState('menu')} className="bg-slate-100 p-4 rounded-xl text-slate-400">🏠</button>
+                                    <button onClick={() => checkAnswer(gameState)} className="flex-1 bg-indigo-500 text-white font-bold py-4 rounded-xl shadow-lg active:scale-95">檢查答案</button>
+                                    <button onClick={() => setGameState('menu')} className="bg-slate-100 p-4 rounded-xl text-slate-400 active:bg-slate-200">🏠</button>
                                 </div>
                             </div>
                         )}
 
                         {gameState === 'gameOver' && (
                             <div className="h-full flex flex-col items-center justify-center p-8 text-center">
-                                <div className="text-7xl mb-6">🎉</div>
-                                <h2 className="text-3xl font-black text-slate-800 mb-2">挑戰成功！</h2>
-                                <p className="text-xl text-slate-500 mb-8">你一共得到了 {score} 分</p>
+                                <div className="text-7xl mb-6">🎊</div>
+                                <h2 className="text-3xl font-black text-slate-800 mb-2">闖關成功！</h2>
+                                <p className="text-xl text-slate-500 mb-8">你獲得了 {score} 分</p>
                                 <button onClick={() => { if(score > highScore) setHighScore(score); setGameState('menu'); }}
-                                    className="bg-indigo-600 text-white font-bold py-3 px-10 rounded-full shadow-lg">回主選單</button>
+                                    className="bg-indigo-600 text-white font-bold py-3 px-10 rounded-full shadow-lg active:scale-95 transition-all">返回主選單</button>
                             </div>
                         )}
                     </div>
