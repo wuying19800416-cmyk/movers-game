@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Movers 單字王 - 全單字挑戰版</title>
+    <title>Movers 單字王 - 隨機拼字挑戰版</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -21,7 +21,7 @@
     <script type="text/babel">
         const { useState, useEffect, useCallback } = React;
 
-        // 整理自圖片的完整單字庫 (選取具代表性且易於遊戲化的詞彙)
+        // 整理自圖片的完整單字庫
         const ALL_VOCAB = [
             // A
             { word: 'above', key: 'prep', emoji: '⬆️' }, { word: 'address', key: 'n', emoji: '🏠' }, { word: 'afraid', key: 'adj', emoji: '😨' },
@@ -43,15 +43,16 @@
             { word: 'city', key: 'n', emoji: '🏙️' }, { word: 'climb', key: 'v', emoji: '🧗' }, { word: 'cloud', key: 'n', emoji: '☁️' },
             { word: 'clown', key: 'n', emoji: '🤡' }, { word: 'coat', key: 'n', emoji: '🧥' }, { word: 'coffee', key: 'n', emoji: '☕' },
             { word: 'cold', key: 'adj', emoji: '❄️' }, { word: 'comic book', key: 'n', emoji: '📖' }, { word: 'cook', key: 'v', emoji: '👨‍🍳' },
-            { word: 'country', key: 'n', emoji: '🗺️' }, { word: 'cry', key: 'v', emoji: '😢' }, { word: 'cup', key: 'n', emoji: '☕' },
+            { word: 'cough', key: 'n+v', emoji: '😷' }, { word: 'country', key: 'n', emoji: '🗺️' }, { word: 'cry', key: 'v', emoji: '😢' }, { word: 'cup', key: 'n', emoji: '☕' },
+            { word: 'curly', key: 'adj', emoji: '🌀' },
             // D-F
             { word: 'dance', key: 'v', emoji: '💃' }, { word: 'dangerous', key: 'adj', emoji: '🚫' }, { word: 'dentist', key: 'n', emoji: '🦷' },
             { word: 'difficult', key: 'adj', emoji: '🧠' }, { word: 'dolphin', key: 'n', emoji: '🐬' }, { word: 'dream', key: 'n', emoji: '💭' },
-            { word: 'drive', key: 'v', emoji: '🚗' }, { word: 'earache', key: 'n', emoji: '👂' }, { word: 'elevator', key: 'n', emoji: '🛗' },
-            { word: 'email', key: 'n+v', emoji: '📧' }, { word: 'exciting', key: 'adj', emoji: '🤩' }, { word: 'famous', key: 'adj', emoji: '⭐' },
-            { word: 'farm', key: 'n', emoji: '🚜' }, { word: 'farmer', key: 'n', emoji: '👨‍🌾' }, { word: 'field', key: 'n', emoji: '⛳' },
-            { word: 'fish', key: 'n', emoji: '🐟' }, { word: 'fix', key: 'v', emoji: '🔧' }, { word: 'forest', key: 'n', emoji: '🌲' },
-            { word: 'frightened', key: 'adj', emoji: '😱' },
+            { word: 'drive', key: 'v', emoji: '🚗' }, { word: 'dry', key: 'adj', emoji: '🏜️' }, { word: 'earache', key: 'n', emoji: '👂' }, 
+            { word: 'elevator', key: 'n', emoji: '🛗' }, { word: 'email', key: 'n+v', emoji: '📧' }, { word: 'exciting', key: 'adj', emoji: '🤩' }, 
+            { word: 'famous', key: 'adj', emoji: '⭐' }, { word: 'farm', key: 'n', emoji: '🚜' }, { word: 'farmer', key: 'n', emoji: '👨‍🌾' }, 
+            { word: 'field', key: 'n', emoji: '⛳' }, { word: 'fish', key: 'n', emoji: '🐟' }, { word: 'fix', key: 'v', emoji: '🔧' }, 
+            { word: 'forest', key: 'n', emoji: '🌲' }, { word: 'frightened', key: 'adj', emoji: '😱' },
             // G-I
             { word: 'glass', key: 'n', emoji: '🥛' }, { word: 'goal', key: 'n', emoji: '🥅' }, { word: 'grandparent', key: 'n', emoji: '👵' },
             { word: 'grass', key: 'n', emoji: '🌱' }, { word: 'ground', key: 'n', emoji: '🌍' }, { word: 'grown-up', key: 'n', emoji: '👨' },
@@ -113,44 +114,46 @@
                 }
             };
 
-            // 產生隨機挖空單字的輔助函數
+            // 核心功能：隨機決定要挖空哪幾個字母
             const generateMaskedWord = (word) => {
-                let masked = "";
+                let maskedArray = [];
                 let hasBlank = false;
                 let hasLetter = false;
 
+                // 第一輪：純隨機決定
                 for (let i = 0; i < word.length; i++) {
                     if (word[i] === ' ') {
-                        masked += ' ';
+                        maskedArray.push(' ');
                     } else {
-                        // 約 50% 機率挖空，但這只是初步決定
+                        // 隨機機率：這裡設定約 50% 挖空
                         const shouldMask = Math.random() > 0.5;
                         if (shouldMask) {
-                            masked += "_";
+                            maskedArray.push('_');
                             hasBlank = true;
                         } else {
-                            masked += word[i];
+                            maskedArray.push(word[i]);
                             hasLetter = true;
                         }
                     }
                 }
 
-                // 保底機制：確保至少有一個空格
+                // 第二輪：保底檢查 (確保至少有一個空格)
                 if (!hasBlank) {
-                    const idx = Math.floor(Math.random() * word.length);
-                    if (word[idx] !== ' ') {
-                        masked = masked.substring(0, idx) + "_" + masked.substring(idx + 1);
-                    }
-                }
-                // 保底機制：確保至少有一個字母顯示
-                if (!hasLetter) {
-                    const idx = Math.floor(Math.random() * word.length);
-                    if (word[idx] !== ' ') {
-                        masked = masked.substring(0, idx) + word[idx] + masked.substring(idx + 1);
-                    }
+                    const validIndices = [];
+                    for(let i=0; i<word.length; i++) if(word[i] !== ' ') validIndices.push(i);
+                    const randIdx = validIndices[Math.floor(Math.random() * validIndices.length)];
+                    maskedArray[randIdx] = '_';
                 }
 
-                return masked;
+                // 第三輪：保底檢查 (確保至少有一個提示字母)
+                if (!hasLetter) {
+                    const validIndices = [];
+                    for(let i=0; i<word.length; i++) if(word[i] !== ' ') validIndices.push(i);
+                    const randIdx = validIndices[Math.floor(Math.random() * validIndices.length)];
+                    maskedArray[randIdx] = word[randIdx];
+                }
+
+                return maskedArray.join('');
             };
 
             const initMemory = () => {
@@ -234,7 +237,7 @@
                                                 if (solved.length + 2 === cards.length) setTimeout(() => setGameState('gameOver'), 1000);
                                             } else { setTimeout(() => setFlipped([]), 1000); }
                                         }
-                                    }} className={`cursor-pointer rounded-xl flex flex-col items-center justify-center transition-all duration-300 ${flipped.includes(i) || solved.includes(i) ? 'bg-white border-2 border-sky-300 shadow-sm' : 'bg-sky-500 text-transparent'}`}>
+                                    }} className={`cursor-pointer rounded-xl flex flex-col items-center justify-center transition-all duration-300 shadow-sm ${flipped.includes(i) || solved.includes(i) ? 'bg-white border-2 border-sky-300 shadow-sm' : 'bg-sky-500 text-transparent'}`}>
                                         {(flipped.includes(i) || solved.includes(i)) && (
                                             card.type === 'word' ? <div className="text-[10px] font-bold text-sky-800 text-center uppercase px-1 break-words">{card.word}<br/><span className="text-[8px] opacity-50">({card.key})</span></div> : <span className="text-3xl">{card.emoji}</span>
                                         )}
