@@ -15,34 +15,77 @@ interface CategoryGameProps {
 
 // Simple mapping for demo purposes. 
 // In a real app, word data should have explicit 'category' field matching these specific IDs if we want strict typing.
-const CATEGORIES = [
-    { id: 'n', label: 'Thing (Noun)', color: 'bg-emerald-500', icon: '📦' },
-    { id: 'v', label: 'Action (Verb)', color: 'bg-blue-500', icon: '🏃' },
-    { id: 'adj', label: 'Describe (Adj)', color: 'bg-amber-500', icon: '✨' },
-    { id: 'other', label: 'Other (Prep/Adv)', color: 'bg-purple-500', icon: '🔄' }, // Catch-all for prep, adv, pron
+// Comprehensive category mapping
+const ALL_CATEGORIES = [
+    { id: 'n', label: 'Noun (Thing)', color: 'bg-emerald-500', icon: '📦' },
+    { id: 'v', label: 'Verb (Action)', color: 'bg-blue-500', icon: '🏃' },
+    { id: 'adj', label: 'Adjective (Desc)', color: 'bg-amber-500', icon: '✨' },
+    { id: 'adv', label: 'Adverb (How)', color: 'bg-purple-500', icon: '🐢' },
+    { id: 'prep', label: 'Preposition (Pos)', color: 'bg-rose-500', icon: '📍' },
+    { id: 'pron', label: 'Pronoun (Person)', color: 'bg-cyan-500', icon: '👤' },
+    { id: 'det', label: 'Determiner', color: 'bg-slate-500', icon: '👈' },
 ];
+
+interface CategoryOption {
+    id: string;
+    label: string;
+    color: string;
+    icon: string;
+    isCorrect: boolean;
+}
 
 export const CategoryGame: React.FC<CategoryGameProps> = ({ currentWord, onSpeak, onBack, onScoreUpdate, nextWord }) => {
     const [shaking, setShaking] = useState<string | null>(null);
+    const [options, setOptions] = useState<CategoryOption[]>([]);
 
-    const handleCategorySelect = (catId: string) => {
-        // Logic: Check if currentWord.key starts with the category id (e.g. 'n', 'n+v')
-        // This is a heuristic. 'n+v' would match 'n' (Noun) and 'v' (Verb).
+    // Generate options when word changes
+    React.useEffect(() => {
+        const keys = currentWord.key.split('+'); // e.g. "adj+adv" -> ["adj", "adv"]
 
-        let isMatch = false;
+        // Find valid categories for this word
+        const validCats = ALL_CATEGORIES.filter(c => keys.includes(c.id));
 
-        if (catId === 'n' && currentWord.key.includes('n')) isMatch = true;
-        else if (catId === 'v' && currentWord.key.includes('v')) isMatch = true;
-        else if (catId === 'adj' && currentWord.key.includes('adj')) isMatch = true;
-        else if (catId === 'other' && !currentWord.key.includes('n') && !currentWord.key.includes('v') && !currentWord.key.includes('adj')) isMatch = true;
+        // Pick ONE correct category to effectively be the "answer" for this round
+        // (Even if word has multiple types, we pick one to ensure it exists in options)
+        const correctCat = validCats[Math.floor(Math.random() * validCats.length)];
+
+        if (!correctCat) {
+            console.error("No matching category found for key:", currentWord.key);
+            return;
+        }
+
+        // Pick 3 distractors
+        const distractors = ALL_CATEGORIES
+            .filter(c => !keys.includes(c.id)) // Ensure distractors are NOT valid types
+            .sort(() => 0.5 - Math.random())
+            .slice(0, 3);
+
+        // Combine and shuffle
+        const gameOptions = [
+            { ...correctCat, isCorrect: true },
+            ...distractors.map(d => ({ ...d, isCorrect: false }))
+        ].sort(() => 0.5 - Math.random());
+
+        setOptions(gameOptions);
+    }, [currentWord]);
+
+    const handleCategorySelect = (option: CategoryOption) => {
+        // We check if the selected OPTION maps to a valid key for the word
+        // But since we pre-calculated correctness, we can use that.
+        // Wait, strictly speaking, a word like "adj+adv" might have both ADJ and ADV in options if we were unlucky with distractors logic?
+        // My distractor logic prevents that: .filter(c => !keys.includes(c.id))
+        // So only correct types are valid.
+
+        // Double check validation: does the selected category ID match any of the word's keys?
+        const keys = currentWord.key.split('+');
+        const isMatch = keys.includes(option.id);
 
         if (isMatch) {
-            const label = catId === 'n' ? 'Noun' : catId === 'v' ? 'Verb' : catId === 'adj' ? 'Adjective' : 'Other word';
-            onSpeak("Correct! It is a " + label);
+            onSpeak("Correct! It is a " + option.label.split('(')[0].trim());
             onScoreUpdate(10);
             nextWord();
         } else {
-            setShaking(catId);
+            setShaking(option.id);
             onSpeak("Try again");
             setTimeout(() => setShaking(null), 500);
         }
@@ -65,18 +108,18 @@ export const CategoryGame: React.FC<CategoryGameProps> = ({ currentWord, onSpeak
                 </div>
 
                 <div className="grid grid-cols-1 gap-3 w-full">
-                    {CATEGORIES.map(cat => (
+                    {options.map(opt => (
                         <button
-                            key={cat.id}
-                            onClick={() => handleCategorySelect(cat.id)}
+                            key={opt.id}
+                            onClick={() => handleCategorySelect(opt)}
                             className={clsx(
                                 "p-4 rounded-xl text-white font-bold text-lg shadow-md transition-all active:scale-95 flex items-center justify-between group",
-                                cat.color,
-                                shaking === cat.id && "animate-shake ring-4 ring-red-300"
+                                opt.color,
+                                shaking === opt.id && "animate-shake ring-4 ring-red-300"
                             )}
                         >
-                            <span>{cat.label}</span>
-                            <span className="text-2xl group-hover:scale-125 transition-transform">{cat.icon}</span>
+                            <span>{opt.label}</span>
+                            <span className="text-2xl group-hover:scale-125 transition-transform">{opt.icon}</span>
                         </button>
                     ))}
                 </div>
