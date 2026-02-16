@@ -1,0 +1,11 @@
+/* Mobile Touch Scrolling Support */
+.overflow-y-auto {
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    overscroll-behavior-y: contain;
+}
+
+/* Fix for iOS scroll momentum */
+* {
+    -webkit-tap-highlight-color: transparent;
+}
