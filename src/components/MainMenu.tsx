@@ -87,7 +87,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onSelectMode }) => {
         onSelectMode(mode);
     };
     return (
-        <div className="h-full flex flex-col items-center justify-center p-4 text-center animate-fade-in relative overflow-hidden">
+        <div className="h-full flex flex-col items-center justify-start p-4 pt-8 text-center animate-fade-in relative overflow-y-auto">
             {/* 背景浮動裝飾 */}
             <div className="absolute top-10 left-10 text-6xl animate-bounce-slow opacity-30">🎮</div>
             <div className="absolute top-20 right-10 text-5xl animate-bounce-slow opacity-30" style={{ animationDelay: '1s' }}>🎨</div>
@@ -95,7 +95,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onSelectMode }) => {
             <div className="absolute bottom-10 right-20 text-6xl animate-bounce-slow opacity-30" style={{ animationDelay: '1.5s' }}>🌈</div>
 
             {/* Main Title */}
-            <div className="mb-6 animate-tada">
+            <div className="mb-4 animate-tada">
                 <div className="text-8xl mb-2 drop-shadow-2xl animate-wiggle">🎯</div>
                 <h1 className="text-6xl font-black bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent mb-2 drop-shadow-lg animate-pulse">
                     Word Adventure
@@ -108,7 +108,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onSelectMode }) => {
             </div>
 
             {/* Game Buttons */}
-            <div className="grid grid-cols-1 gap-4 w-full max-w-md mb-4">
+            <div className="grid grid-cols-1 gap-3 w-full max-w-md mb-4">
                 <MenuButton
                     icon={<Brain size={40} />}
                     title="Memory Match"
@@ -151,7 +151,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onSelectMode }) => {
                 />
             </div>
 
-            <div className="bg-black/60 px-4 py-2 rounded-xl backdrop-blur-sm mt-4">
+            <div className="bg-black/60 px-4 py-2 rounded-xl backdrop-blur-sm mt-2 mb-4">
                 <div className="text-white text-sm font-semibold">
                     Click to start playing! 🎉
                 </div>
