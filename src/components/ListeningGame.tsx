@@ -14,7 +14,6 @@ interface ListeningGameProps {
 export const ListeningGame: React.FC<ListeningGameProps> = ({ currentWord, onCheck, onSpeak, onBack }) => {
     const [options, setOptions] = useState<WordItem[]>([]);
     const [shaking, setShaking] = useState<number | null>(null);
-    const lastWordRef = React.useRef<string>('');
 
     useEffect(() => {
         // Generate options: current word + 3 random distractors
