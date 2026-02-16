@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import type { WordItem } from '../data/words';
+import type { WordItem } from '../types';
 // Reuse the SpellingGame structure but with a prompt for the masked word?
 // Or build a custom one. Let's build a custom one to show the mask visually.
 import { Volume2, ArrowRight, Home } from 'lucide-react';

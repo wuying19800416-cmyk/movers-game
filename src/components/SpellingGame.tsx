@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import type { WordItem } from '../data/words';
+import type { WordItem } from '../types';
 import { Volume2, ArrowRight, Home } from 'lucide-react';
 import clsx from 'clsx';
+import { recordCompletion } from './MainMenu';
 
 interface SpellingGameProps {
     currentWord: WordItem;
@@ -27,8 +28,12 @@ export const SpellingGame: React.FC<SpellingGameProps> = ({ currentWord, onCheck
         const isCorrect = onCheck(input);
         setStatus(isCorrect ? 'correct' : 'wrong');
 
+        if (isCorrect) {
+            recordCompletion('spelling');
+        }
+
         if (!isCorrect) {
-            setTimeout(() => setStatus('idle'), 800);
+            setTimeout(() => setStatus('idle'), 1500);
         }
     };
 

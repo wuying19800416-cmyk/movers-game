@@ -1,9 +1,6 @@
 
-export interface WordItem {
-    word: string;
-    key: string;
-    emoji: string;
-}
+import type { WordItem } from '../types';
+
 
 export const ALL_VOCAB: WordItem[] = [
     // A
@@ -31,10 +28,10 @@ export const ALL_VOCAB: WordItem[] = [
     // D-F
     { word: 'dance', key: 'v', emoji: '💃' }, { word: 'dangerous', key: 'adj', emoji: '🚫' }, { word: 'dentist', key: 'n', emoji: '🦷' },
     { word: 'difficult', key: 'adj', emoji: '🧠' }, { word: 'dolphin', key: 'n', emoji: '🐬' }, { word: 'dream', key: 'n', emoji: '💭' },
-    { word: 'drive', key: 'v', emoji: '🚗' }, { word: 'dry', key: 'adj', emoji: '🏜️' }, { word: 'earache', key: 'n', emoji: '👂' }, 
-    { word: 'elevator', key: 'n', emoji: '🛗' }, { word: 'email', key: 'n+v', emoji: '📧' }, { word: 'exciting', key: 'adj', emoji: '🤩' }, 
-    { word: 'famous', key: 'adj', emoji: '⭐' }, { word: 'farm', key: 'n', emoji: '🚜' }, { word: 'farmer', key: 'n', emoji: '👨‍🌾' }, 
-    { word: 'field', key: 'n', emoji: '⛳' }, { word: 'fish', key: 'n', emoji: '🐟' }, { word: 'fix', key: 'v', emoji: '🔧' }, 
+    { word: 'drive', key: 'v', emoji: '🚗' }, { word: 'dry', key: 'adj', emoji: '🏜️' }, { word: 'earache', key: 'n', emoji: '👂' },
+    { word: 'elevator', key: 'n', emoji: '🛗' }, { word: 'email', key: 'n+v', emoji: '📧' }, { word: 'exciting', key: 'adj', emoji: '🤩' },
+    { word: 'famous', key: 'adj', emoji: '⭐' }, { word: 'farm', key: 'n', emoji: '🚜' }, { word: 'farmer', key: 'n', emoji: '👨‍🌾' },
+    { word: 'field', key: 'n', emoji: '⛳' }, { word: 'fish', key: 'n', emoji: '🐟' }, { word: 'fix', key: 'v', emoji: '🔧' },
     { word: 'forest', key: 'n', emoji: '🌲' }, { word: 'frightened', key: 'adj', emoji: '😱' },
     // G-I
     { word: 'glass', key: 'n', emoji: '🥛' }, { word: 'goal', key: 'n', emoji: '🥅' }, { word: 'grandparent', key: 'n', emoji: '👵' },
