@@ -1,10 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import type { WordItem } from '../types';
 import { ALL_VOCAB } from '../data/words'; // Used for distractors
-import { Home, Volume2, HelpCircle } from 'lucide-react';
+import { Home, Volume2 } from 'lucide-react';
 import clsx from 'clsx';
-import confetti from 'canvas-confetti';
 
 interface ListeningGameProps {
     currentWord: WordItem;

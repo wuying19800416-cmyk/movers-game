@@ -14,7 +14,6 @@ export const useGameLogic = () => {
         return saved ? parseInt(saved) : 0;
     });
     const [currentWord, setCurrentWord] = useState<WordItem | null>(null);
-    const [wordDeck, setWordDeck] = useState<WordItem[]>([]);
     const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
 
     useEffect(() => {
@@ -34,18 +33,9 @@ export const useGameLogic = () => {
         }
     };
 
-    const startGame = (selectedMode: GameMode) => {
-        setMode(selectedMode);
-        setScore(0);
-
-        // Memory game handles its own word selection
-        if (selectedMode === 'memory') {
-            return;
-        }
-
-        // Re-shuffle deck for a new game
-        const shuffled = [...ALL_VOCAB].sort(() => 0.5 - Math.random());
-        setWordDeck(shuffled);
+    const startGame = (newMode: GameMode) => {
+        if (newMode === 'menu') return;
+        setMode(newMode);
         nextWord();
     };
 
