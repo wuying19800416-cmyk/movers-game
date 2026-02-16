@@ -63,7 +63,7 @@ export const GameLayout: React.FC<GameLayoutProps> = ({ score, highScore, onHome
 
             {/* Game Content */}
             <div className={clsx(
-                "w-full max-w-2xl bg-white/95 backdrop-blur-md rounded-[40px] shadow-[0_16px_0_rgba(0,0,0,0.1)] overflow-hidden relative border-8 border-white/50 min-h-[600px] flex flex-col",
+                "w-full max-w-2xl bg-white/95 backdrop-blur-md rounded-[40px] shadow-[0_16px_0_rgba(0,0,0,0.1)] overflow-y-auto relative border-8 border-white/50 min-h-[600px] flex flex-col",
                 className
             )}>
                 {/* Decorative Shine */}
