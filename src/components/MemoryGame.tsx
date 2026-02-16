@@ -102,7 +102,7 @@ export const MemoryGame: React.FC<MemoryGameProps> = ({ onBack, onSpeak, onScore
     };
 
     return (
-        <div className="h-full flex flex-col items-center justify-center p-4 animate-fade-in relative">
+        <div className="h-full flex flex-col items-center justify-start p-4 pt-16 animate-fade-in relative overflow-y-auto">
             <button onClick={onBack} className="absolute top-4 left-4 p-2 bg-slate-100/50 rounded-full text-slate-400 hover:bg-slate-200 z-10">
                 <Home size={20} />
             </button>
