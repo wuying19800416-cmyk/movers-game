@@ -42,22 +42,11 @@ export const useGameLogic = () => {
     const nextWord = useCallback(() => {
         setFeedback(null);
 
-        setWordDeck(prevDeck => {
-            let newDeck = [...prevDeck];
-
-            if (newDeck.length === 0) {
-                // Refill deck if empty
-                newDeck = [...ALL_VOCAB].sort(() => 0.5 - Math.random());
-            }
-
-            const next = newDeck.pop();
-            if (next) {
-                setCurrentWord(next);
-                speak(next.word);
-            }
-
-            return newDeck;
-        });
+        // Get next random word from ALL_VOCAB
+        const randomIndex = Math.floor(Math.random() * ALL_VOCAB.length);
+        const next = ALL_VOCAB[randomIndex];
+        setCurrentWord(next);
+        speak(next.word);
     }, [speak]);
 
     const checkAnswer = (input: string) => {
