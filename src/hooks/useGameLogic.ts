@@ -14,6 +14,7 @@ export const useGameLogic = () => {
         return saved ? parseInt(saved) : 0;
     });
     const [currentWord, setCurrentWord] = useState<WordItem | null>(null);
+    const [wordDeck, setWordDeck] = useState<WordItem[]>([]);
     const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
 
     useEffect(() => {
@@ -36,18 +37,33 @@ export const useGameLogic = () => {
     const startGame = (newMode: GameMode) => {
         if (newMode === 'menu') return;
         setMode(newMode);
-        nextWord();
+        // Initialize shuffled deck
+        const shuffled = [...ALL_VOCAB].sort(() => Math.random() - 0.5);
+        setWordDeck(shuffled);
+        // Draw first card
+        const firstWord = shuffled[0];
+        setCurrentWord(firstWord);
+        speak(firstWord.word);
+        setWordDeck(shuffled.slice(1));
     };
 
     const nextWord = useCallback(() => {
         setFeedback(null);
 
-        // Get next random word from ALL_VOCAB
-        const randomIndex = Math.floor(Math.random() * ALL_VOCAB.length);
-        const next = ALL_VOCAB[randomIndex];
+        // Check if deck is empty, reshuffle if needed
+        let currentDeck = [...wordDeck];
+        if (currentDeck.length === 0) {
+            currentDeck = [...ALL_VOCAB].sort(() => Math.random() - 0.5);
+        }
+
+        // Draw the next card from deck
+        const next = currentDeck[0];
         setCurrentWord(next);
         speak(next.word);
-    }, [speak]);
+
+        // Remove used card from deck
+        setWordDeck(currentDeck.slice(1));
+    }, [wordDeck, speak]);
 
     const checkAnswer = (input: string) => {
         if (!currentWord) return false;
