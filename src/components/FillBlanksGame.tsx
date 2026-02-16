@@ -21,8 +21,25 @@ export const FillBlanksGame: React.FC<FillBlanksGameProps> = ({ currentWord, onC
     const maskedWord = useMemo(() => {
         const word = currentWord.word;
         const chars = word.split('');
-        // Simple logic: mask ~50%
-        return chars.map(c => Math.random() > 0.5 && c !== ' ' ? '_' : c).join('');
+        const len = chars.length;
+        // Calculate how many chars to SHOW (min 30%, at least 1)
+        const minVisible = Math.max(1, Math.ceil(len * 0.3));
+
+        // Create indices array and shuffle it to pick which ones to show
+        const indices = Array.from({ length: len }, (_, i) => i);
+        // Shuffle indices
+        for (let i = indices.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [indices[i], indices[j]] = [indices[j], indices[i]];
+        }
+
+        // Pick the first 'minVisible' indices to keep visible
+        const visibleIndices = new Set(indices.slice(0, minVisible));
+
+        return chars.map((c, i) => {
+            if (c === ' ' || visibleIndices.has(i)) return c;
+            return '_';
+        }).join('');
     }, [currentWord]);
 
     useEffect(() => {

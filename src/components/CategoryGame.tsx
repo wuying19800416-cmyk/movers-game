@@ -19,6 +19,7 @@ const CATEGORIES = [
     { id: 'n', label: 'Thing (Noun)', color: 'bg-emerald-500', icon: '📦' },
     { id: 'v', label: 'Action (Verb)', color: 'bg-blue-500', icon: '🏃' },
     { id: 'adj', label: 'Describe (Adj)', color: 'bg-amber-500', icon: '✨' },
+    { id: 'other', label: 'Other (Prep/Adv)', color: 'bg-purple-500', icon: '🔄' }, // Catch-all for prep, adv, pron
 ];
 
 export const CategoryGame: React.FC<CategoryGameProps> = ({ currentWord, onSpeak, onBack, onScoreUpdate, nextWord }) => {
@@ -33,9 +34,11 @@ export const CategoryGame: React.FC<CategoryGameProps> = ({ currentWord, onSpeak
         if (catId === 'n' && currentWord.key.includes('n')) isMatch = true;
         else if (catId === 'v' && currentWord.key.includes('v')) isMatch = true;
         else if (catId === 'adj' && currentWord.key.includes('adj')) isMatch = true;
+        else if (catId === 'other' && !currentWord.key.includes('n') && !currentWord.key.includes('v') && !currentWord.key.includes('adj')) isMatch = true;
 
         if (isMatch) {
-            onSpeak("Correct! It is a " + (catId === 'n' ? 'Noun' : catId === 'v' ? 'Verb' : 'Adjective'));
+            const label = catId === 'n' ? 'Noun' : catId === 'v' ? 'Verb' : catId === 'adj' ? 'Adjective' : 'Other word';
+            onSpeak("Correct! It is a " + label);
             onScoreUpdate(10);
             nextWord();
         } else {
