@@ -1,11 +1,19 @@
-/* Mobile Touch Scrolling Support */
-.overflow-y-auto {
-    -webkit-overflow-scrolling: touch;
-    touch-action: pan-y;
-    overscroll-behavior-y: contain;
+/* Mobile Scroll Fixes */
+html,
+body {
+    overscroll-behavior-y: none;
+    /* Prevent pull-to-refresh if not needed */
+    height: 100%;
 }
 
-/* Fix for iOS scroll momentum */
-* {
-    -webkit-tap-highlight-color: transparent;
+#root {
+    height: 100%;
+    overflow-y: auto;
+    /* Scroll happening here */
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Ensure child containers don't block scroll */
+.overflow-y-auto {
+    -webkit-overflow-scrolling: touch;
 }

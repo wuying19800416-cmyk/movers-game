@@ -17,10 +17,6 @@ export const ListeningGame: React.FC<ListeningGameProps> = ({ currentWord, onChe
     const lastWordRef = React.useRef<string>('');
 
     useEffect(() => {
-        // Only trigger when the word actually changes
-        if (lastWordRef.current === currentWord.word) return;
-        lastWordRef.current = currentWord.word;
-
         // Generate options: current word + 3 random distractors
         const distractors = ALL_VOCAB
             .filter(w => w.word !== currentWord.word)
@@ -29,14 +25,7 @@ export const ListeningGame: React.FC<ListeningGameProps> = ({ currentWord, onChe
 
         const allOptions = [...distractors, currentWord].sort(() => 0.5 - Math.random());
         setOptions(allOptions);
-
-        // Auto-play sound ONCE on new word
-        const timer = setTimeout(() => {
-            onSpeak(currentWord.word);
-        }, 500);
-
-        return () => clearTimeout(timer);
-    }, [currentWord.word, onSpeak]);
+    }, [currentWord]);
 
     const handleOptionClick = (word: WordItem, index: number) => {
         const isCorrect = onCheck(word.word);
