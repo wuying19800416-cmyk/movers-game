@@ -87,7 +87,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onSelectMode }) => {
         onSelectMode(mode);
     };
     return (
-        <div className="h-full flex flex-col items-center justify-start p-4 pt-8 text-center animate-fade-in relative overflow-y-auto">
+        <div className="h-full flex flex-col items-center justify-start p-2 sm:p-4 pt-6 sm:pt-8 text-center animate-fade-in relative overflow-y-auto">
             {/* 背景浮動裝飾 */}
             <div className="absolute top-10 left-10 text-6xl animate-bounce-slow opacity-30">🎮</div>
             <div className="absolute top-20 right-10 text-5xl animate-bounce-slow opacity-30" style={{ animationDelay: '1s' }}>🎨</div>
@@ -96,19 +96,19 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onSelectMode }) => {
 
             {/* Main Title */}
             <div className="mb-4 animate-tada">
-                <div className="text-8xl mb-2 drop-shadow-2xl animate-wiggle">🎯</div>
-                <h1 className="text-6xl font-black bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent mb-2 drop-shadow-lg animate-pulse">
+                <div className="text-5xl sm:text-8xl mb-2 drop-shadow-2xl animate-wiggle">🎯</div>
+                <h1 className="text-3xl sm:text-5xl md:text-6xl font-black bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent mb-2 drop-shadow-lg animate-pulse">
                     Word Adventure
                 </h1>
                 <div className="inline-block bg-black/70 px-6 py-2 rounded-2xl backdrop-blur-sm">
-                    <p className="text-2xl font-bold text-white drop-shadow-lg">
+                    <p className="text-base sm:text-xl md:text-2xl font-bold text-white drop-shadow-lg">
                         Choose Your Challenge! 🚀
                     </p>
                 </div>
             </div>
 
             {/* Game Buttons */}
-            <div className="grid grid-cols-1 gap-3 w-full max-w-md mb-4">
+            <div className="grid grid-cols-1 gap-2 sm:gap-3 w-full max-w-md mb-2 sm:mb-4">
                 <MenuButton
                     icon={<Brain size={40} />}
                     title="Memory Match"

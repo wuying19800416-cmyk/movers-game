@@ -111,9 +111,9 @@ export const MemoryGame: React.FC<MemoryGameProps> = ({ onBack, onSpeak, onScore
                 <RefreshCw size={20} />
             </button>
 
-            <h2 className="text-2xl font-black text-slate-700 mb-6 tracking-tight">Memory Match</h2>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-700 mb-4 sm:mb-6 tracking-tight">Memory Match</h2>
 
-            <div className="grid grid-cols-3 gap-3 w-full max-w-sm">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3 w-full max-w-2xl px-2">
                 {cards.map((card, index) => {
                     const isFlipped = flipped.includes(index) || matched.includes(index);
                     const isSolved = matched.includes(index);
