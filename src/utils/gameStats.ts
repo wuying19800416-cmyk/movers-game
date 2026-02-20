@@ -34,21 +34,20 @@ export const getGameStats = (): GameStats => {
         if (stored) {
             try {
                 const parsed = JSON.parse(stored);
-                // Migrate old format if needed
-                if (typeof parsed.memory === 'number') {
-                    const migrated: GameStats = {
-                        memory: { played: parsed.memory || 0, completed: 0 },
-                        spelling: { played: parsed.spelling || 0, completed: 0 },
-                        fillBlanks: { played: parsed.fillBlanks || 0, completed: 0 },
-                        listening: { played: parsed.listening || 0, completed: 0 },
-                        category: { played: parsed.category || 0, completed: 0 },
-                        typing: { played: 0, completed: 0 },
-                        adventure: { played: 0, completed: 0 }
-                    };
-                    localStorage.setItem(STATS_KEY, JSON.stringify(migrated));
-                    return migrated;
-                }
-                return parsed;
+                // Merge with default stats to ensure all keys exist (e.g. if new game modes are added)
+                const defaults = defaultStats();
+                const merged: GameStats = { ...defaults };
+
+                // Deep merge known keys
+                (Object.keys(defaults) as (keyof GameStats)[]).forEach(key => {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    if ((parsed as any)[key]) {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        merged[key] = (parsed as any)[key];
+                    }
+                });
+
+                return merged;
             } catch {
                 return defaultStats();
             }
