@@ -9,6 +9,7 @@ import { ListeningGame } from './components/ListeningGame';
 import { CategoryGame } from './components/CategoryGame';
 import { MeteorTypingGame } from './components/MeteorTypingGame';
 import { AdventureGame } from './components/AdventureGame';
+import { MusicPlayer } from './components/MusicPlayer';
 
 
 
@@ -96,6 +97,8 @@ function App() {
           onBack={goHome}
         />
       )}
+
+      <MusicPlayer src="./music/bgm.mp3" initialVolume={0.2} />
     </GameLayout>
   );
 }
