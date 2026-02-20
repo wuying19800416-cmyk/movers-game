@@ -8,8 +8,13 @@ export const useGameLogic = () => {
     const [mode, setMode] = useState<GameMode>('menu');
     const [score, setScore] = useState(0);
     const [highScore, setHighScore] = useState(() => {
-        const saved = localStorage.getItem('movers-highscore');
-        return saved ? parseInt(saved) : 0;
+        try {
+            const saved = localStorage.getItem('movers-highscore');
+            return saved ? parseInt(saved) : 0;
+        } catch (e) {
+            console.warn('Failed to read high score from localStorage:', e);
+            return 0;
+        }
     });
     const [currentWord, setCurrentWord] = useState<WordItem | null>(null);
     const [wordDeck, setWordDeck] = useState<WordItem[]>([]);
