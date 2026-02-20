@@ -1,5 +1,5 @@
 
-export type GameMode = 'menu' | 'memory' | 'spelling' | 'fillBlanks' | 'listening' | 'category';
+export type GameMode = 'menu' | 'memory' | 'spelling' | 'fillBlanks' | 'listening' | 'category' | 'typing' | 'adventure';
 
 export interface WordItem {
     word: string;

@@ -7,6 +7,8 @@ import { FillBlanksGame } from './components/FillBlanksGame';
 import { MemoryGame } from './components/MemoryGame';
 import { ListeningGame } from './components/ListeningGame';
 import { CategoryGame } from './components/CategoryGame';
+import { MeteorTypingGame } from './components/MeteorTypingGame';
+import { AdventureGame } from './components/AdventureGame';
 
 
 
@@ -24,6 +26,7 @@ function App() {
     nextWord
   } = useGameLogic();
 
+  console.log('Current Mode:', mode);
 
   return (
     <GameLayout score={score} highScore={highScore} onHome={goHome}>
@@ -41,6 +44,7 @@ function App() {
 
       {mode === 'spelling' && currentWord && (
         <SpellingGame
+          key={currentWord.word}
           currentWord={currentWord}
           onCheck={checkAnswer}
           onSpeak={speak}
@@ -50,6 +54,7 @@ function App() {
 
       {mode === 'fillBlanks' && currentWord && (
         <FillBlanksGame
+          key={currentWord.word}
           currentWord={currentWord}
           onCheck={checkAnswer}
           onSpeak={speak}
@@ -59,6 +64,7 @@ function App() {
 
       {mode === 'listening' && currentWord && (
         <ListeningGame
+          key={currentWord.word}
           currentWord={currentWord}
           onCheck={checkAnswer}
           onSpeak={speak}
@@ -68,12 +74,26 @@ function App() {
 
       {mode === 'category' && currentWord && (
         <CategoryGame
+          key={currentWord.word}
           currentWord={currentWord}
           onCheck={checkAnswer}
           onSpeak={speak}
           onBack={goHome}
           onScoreUpdate={addScore}
           nextWord={nextWord}
+        />
+      )}
+
+      {mode === 'typing' && (
+        <MeteorTypingGame
+          onBack={goHome}
+          onScoreUpdate={addScore}
+        />
+      )}
+
+      {mode === 'adventure' && (
+        <AdventureGame
+          onBack={goHome}
         />
       )}
     </GameLayout>

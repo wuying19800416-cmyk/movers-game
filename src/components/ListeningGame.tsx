@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import type { WordItem } from '../types';
 import { ALL_VOCAB } from '../data/words'; // Used for distractors
 import { Home, Volume2 } from 'lucide-react';
@@ -12,19 +12,16 @@ interface ListeningGameProps {
 }
 
 export const ListeningGame: React.FC<ListeningGameProps> = ({ currentWord, onCheck, onSpeak, onBack }) => {
-    const [options, setOptions] = useState<WordItem[]>([]);
     const [shaking, setShaking] = useState<number | null>(null);
-
-    useEffect(() => {
+    const [options] = useState<WordItem[]>(() => {
         // Generate options: current word + 3 random distractors
         const distractors = ALL_VOCAB
             .filter(w => w.word !== currentWord.word)
             .sort(() => 0.5 - Math.random())
             .slice(0, 3);
 
-        const allOptions = [...distractors, currentWord].sort(() => 0.5 - Math.random());
-        setOptions(allOptions);
-    }, [currentWord]);
+        return [...distractors, currentWord].sort(() => 0.5 - Math.random());
+    });
 
     const handleOptionClick = (word: WordItem, index: number) => {
         const isCorrect = onCheck(word.word);

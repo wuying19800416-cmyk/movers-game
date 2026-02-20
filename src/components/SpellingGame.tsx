@@ -1,9 +1,9 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import type { WordItem } from '../types';
 import { Volume2, ArrowRight, Home } from 'lucide-react';
 import clsx from 'clsx';
-import { recordCompletion } from './MainMenu';
+import { recordCompletion } from '../utils/gameStats';
 
 interface SpellingGameProps {
     currentWord: WordItem;
@@ -16,10 +16,7 @@ export const SpellingGame: React.FC<SpellingGameProps> = ({ currentWord, onCheck
     const [input, setInput] = useState('');
     const [status, setStatus] = useState<'idle' | 'correct' | 'wrong'>('idle');
 
-    useEffect(() => {
-        setInput('');
-        setStatus('idle');
-    }, [currentWord]);
+
 
     const handleSubmit = (e?: React.FormEvent) => {
         e?.preventDefault();

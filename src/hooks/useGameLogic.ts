@@ -1,10 +1,8 @@
 
-import { useState, useCallback, useEffect } from 'react';
-import type { WordItem } from '../types';
+import { useState, useCallback } from 'react';
+import type { WordItem, GameMode } from '../types';
 import { ALL_VOCAB } from '../data/words';
 import confetti from 'canvas-confetti';
-
-export type GameMode = 'menu' | 'memory' | 'spelling' | 'fillBlanks' | 'listening' | 'category';
 
 export const useGameLogic = () => {
     const [mode, setMode] = useState<GameMode>('menu');
@@ -17,14 +15,9 @@ export const useGameLogic = () => {
     const [wordDeck, setWordDeck] = useState<WordItem[]>([]);
     const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
 
-    useEffect(() => {
-        if (score > highScore) {
-            setHighScore(score);
-            localStorage.setItem('movers-highscore', score.toString());
-        }
-    }, [score, highScore]);
 
-    const speak = (text: string) => {
+
+    const speak = useCallback((text: string) => {
         if ('speechSynthesis' in window) {
             window.speechSynthesis.cancel(); // Keep existing cancel logic
             const utterance = new SpeechSynthesisUtterance(text);
@@ -32,19 +25,25 @@ export const useGameLogic = () => {
             utterance.rate = 0.9; // Keep existing rate logic
             window.speechSynthesis.speak(utterance);
         }
-    };
+    }, []);
 
     const startGame = (newMode: GameMode) => {
         if (newMode === 'menu') return;
         setMode(newMode);
-        // Initialize shuffled deck
+
+        // For typing mode, we might not need to pre-select a currentWord
+        // but we'll shuffle the deck regardless
         const shuffled = [...ALL_VOCAB].sort(() => Math.random() - 0.5);
         setWordDeck(shuffled);
-        // Draw first card
-        const firstWord = shuffled[0];
-        setCurrentWord(firstWord);
-        speak(firstWord.word);
-        setWordDeck(shuffled.slice(1));
+
+        if (newMode !== 'typing' && newMode !== 'adventure') {
+            const firstWord = shuffled[0];
+            setCurrentWord(firstWord);
+            speak(firstWord.word);
+            setWordDeck(shuffled.slice(1));
+        } else {
+            setCurrentWord(null);
+        }
     };
 
     const nextWord = useCallback(() => {
@@ -65,12 +64,26 @@ export const useGameLogic = () => {
         setWordDeck(currentDeck.slice(1));
     }, [wordDeck, speak]);
 
+    const updateScoreAndHighscore = (points: number) => {
+        setScore(prevScore => {
+            const newScore = prevScore + points;
+            setHighScore(prevHigh => {
+                if (newScore > prevHigh) {
+                    localStorage.setItem('movers-highscore', newScore.toString());
+                    return newScore;
+                }
+                return prevHigh;
+            });
+            return newScore;
+        });
+    };
+
     const checkAnswer = (input: string) => {
         if (!currentWord) return false;
 
         if (input.trim().toLowerCase() === currentWord.word.toLowerCase()) {
             setFeedback('correct');
-            setScore(s => s + 20);
+            updateScoreAndHighscore(20);
             speak("Excellent!");
             confetti({
                 particleCount: 100,
@@ -90,7 +103,7 @@ export const useGameLogic = () => {
     };
 
     const addScore = (points: number) => {
-        setScore(s => s + points);
+        updateScoreAndHighscore(points);
     };
 
     const goHome = () => {

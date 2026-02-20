@@ -36,10 +36,7 @@ interface CategoryOption {
 
 export const CategoryGame: React.FC<CategoryGameProps> = ({ currentWord, onSpeak, onBack, onScoreUpdate, nextWord }) => {
     const [shaking, setShaking] = useState<string | null>(null);
-    const [options, setOptions] = useState<CategoryOption[]>([]);
-
-    // Generate options when word changes
-    React.useEffect(() => {
+    const [options] = useState<CategoryOption[]>(() => {
         const keys = currentWord.key.split('+'); // e.g. "adj+adv" -> ["adj", "adv"]
 
         // Find valid categories for this word
@@ -51,7 +48,10 @@ export const CategoryGame: React.FC<CategoryGameProps> = ({ currentWord, onSpeak
 
         if (!correctCat) {
             console.error("No matching category found for key:", currentWord.key);
-            return;
+            // Fallback to random if error, or empty?
+            // For safety, pick a random one and mark as correct but log error
+            const fallback = ALL_CATEGORIES[0];
+            return [{ ...fallback, isCorrect: true }];
         }
 
         // Pick 3 distractors
@@ -61,13 +61,11 @@ export const CategoryGame: React.FC<CategoryGameProps> = ({ currentWord, onSpeak
             .slice(0, 3);
 
         // Combine and shuffle
-        const gameOptions = [
+        return [
             { ...correctCat, isCorrect: true },
             ...distractors.map(d => ({ ...d, isCorrect: false }))
         ].sort(() => 0.5 - Math.random());
-
-        setOptions(gameOptions);
-    }, [currentWord]);
+    });
 
     const handleCategorySelect = (option: CategoryOption) => {
         // We check if the selected OPTION maps to a valid key for the word

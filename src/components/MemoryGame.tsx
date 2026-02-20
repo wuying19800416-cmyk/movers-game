@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { ALL_VOCAB } from '../data/words';
 import { Home, RefreshCw } from 'lucide-react';
 import confetti from 'canvas-confetti';
@@ -20,12 +20,7 @@ interface MemoryGameProps {
 }
 
 export const MemoryGame: React.FC<MemoryGameProps> = ({ onBack, onSpeak, onScoreUpdate }) => {
-    const [cards, setCards] = useState<Card[]>([]);
-    const [flipped, setFlipped] = useState<number[]>([]);
-    const [matched, setMatched] = useState<number[]>([]);
-    const [locked, setLocked] = useState(false);
-
-    const initializeGame = () => {
+    const generateCards = () => {
         // Select 6 random distinct words
         const shuffledVocab = [...ALL_VOCAB].sort(() => 0.5 - Math.random());
         const selected = shuffledVocab.slice(0, 6);
@@ -50,15 +45,19 @@ export const MemoryGame: React.FC<MemoryGameProps> = ({ onBack, onSpeak, onScore
             });
         });
 
-        // Shuffle cards
-        setCards(cardPairs.sort(() => 0.5 - Math.random()));
+        return cardPairs.sort(() => 0.5 - Math.random());
+    };
+
+    const [cards, setCards] = useState<Card[]>(generateCards);
+    const [flipped, setFlipped] = useState<number[]>([]);
+    const [matched, setMatched] = useState<number[]>([]);
+    const [locked, setLocked] = useState(false);
+
+    const resetGame = useCallback(() => {
+        setCards(generateCards());
         setFlipped([]);
         setMatched([]);
         setLocked(false);
-    };
-
-    useEffect(() => {
-        initializeGame();
     }, []);
 
     const handleCardClick = (index: number) => {
@@ -107,7 +106,7 @@ export const MemoryGame: React.FC<MemoryGameProps> = ({ onBack, onSpeak, onScore
                 <Home size={20} />
             </button>
 
-            <button onClick={initializeGame} className="absolute top-4 right-4 p-2 bg-indigo-100/50 rounded-full text-indigo-400 hover:bg-indigo-200 z-10 transition-colors">
+            <button onClick={resetGame} className="absolute top-4 right-4 p-2 bg-indigo-100/50 rounded-full text-indigo-400 hover:bg-indigo-200 z-10 transition-colors">
                 <RefreshCw size={20} />
             </button>
 

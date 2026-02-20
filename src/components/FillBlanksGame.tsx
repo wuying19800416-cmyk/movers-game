@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState } from 'react';
 import type { WordItem } from '../types';
 // Reuse the SpellingGame structure but with a prompt for the masked word?
 // Or build a custom one. Let's build a custom one to show the mask visually.
@@ -17,8 +17,8 @@ export const FillBlanksGame: React.FC<FillBlanksGameProps> = ({ currentWord, onC
     const [input, setInput] = useState('');
     const [status, setStatus] = useState<'idle' | 'correct' | 'wrong'>('idle');
 
-    // Generate mask only when word changes
-    const maskedWord = useMemo(() => {
+    // Generate mask on mount (component is re-mounted for new words via key)
+    const [maskedWord] = useState(() => {
         const word = currentWord.word;
         const chars = word.split('');
         const len = chars.length;
@@ -40,12 +40,7 @@ export const FillBlanksGame: React.FC<FillBlanksGameProps> = ({ currentWord, onC
             if (c === ' ' || visibleIndices.has(i)) return c;
             return '_';
         }).join('');
-    }, [currentWord]);
-
-    useEffect(() => {
-        setInput('');
-        setStatus('idle');
-    }, [currentWord]);
+    });
 
     const handleSubmit = (e?: React.FormEvent) => {
         e?.preventDefault();

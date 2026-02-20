@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import type { GameMode } from '../types';
 import { Brain, Keyboard, Puzzle, Volume2, Tags } from 'lucide-react';
 
@@ -7,79 +7,13 @@ interface MainMenuProps {
     onSelectMode: (mode: GameMode) => void;
 }
 
-// localStorage key for game stats
-const STATS_KEY = 'movers-game-stats';
-
-interface GameModeStats {
-    played: number;
-    completed: number;
-}
-
-interface GameStats {
-    memory: GameModeStats;
-    spelling: GameModeStats;
-    fillBlanks: GameModeStats;
-    listening: GameModeStats;
-    category: GameModeStats;
-}
-
-const defaultStats = (): GameStats => ({
-    memory: { played: 0, completed: 0 },
-    spelling: { played: 0, completed: 0 },
-    fillBlanks: { played: 0, completed: 0 },
-    listening: { played: 0, completed: 0 },
-    category: { played: 0, completed: 0 }
-});
-
-const getGameStats = (): GameStats => {
-    const stored = localStorage.getItem(STATS_KEY);
-    if (stored) {
-        try {
-            const parsed = JSON.parse(stored);
-            // Migrate old format if needed
-            if (typeof parsed.memory === 'number') {
-                const migrated: GameStats = {
-                    memory: { played: parsed.memory || 0, completed: 0 },
-                    spelling: { played: parsed.spelling || 0, completed: 0 },
-                    fillBlanks: { played: parsed.fillBlanks || 0, completed: 0 },
-                    listening: { played: parsed.listening || 0, completed: 0 },
-                    category: { played: parsed.category || 0, completed: 0 }
-                };
-                localStorage.setItem(STATS_KEY, JSON.stringify(migrated));
-                return migrated;
-            }
-            return parsed;
-        } catch {
-            return defaultStats();
-        }
-    }
-    return defaultStats();
-};
-
-const incrementGameStat = (mode: GameMode) => {
-    const stats = getGameStats();
-    if (mode !== 'menu') {
-        stats[mode].played++;
-        localStorage.setItem(STATS_KEY, JSON.stringify(stats));
-    }
-};
-
-// Export this function for game components to call
-export const recordCompletion = (mode: GameMode) => {
-    const stats = getGameStats();
-    if (mode !== 'menu') {
-        stats[mode].completed++;
-        localStorage.setItem(STATS_KEY, JSON.stringify(stats));
-    }
-};
+import { getGameStats, incrementGameStat } from '../utils/gameStats';
+import type { GameStats, GameModeStats } from '../utils/gameStats';
 
 export const MainMenu: React.FC<MainMenuProps> = ({ onSelectMode }) => {
     const [stats, setStats] = useState<GameStats>(getGameStats());
 
-    useEffect(() => {
-        // Refresh stats when component mounts
-        setStats(getGameStats());
-    }, []);
+
 
     const handleSelectMode = (mode: GameMode) => {
         incrementGameStat(mode);
@@ -148,6 +82,22 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onSelectMode }) => {
                     stats={stats.category}
                     color="from-pink-400 to-rose-400"
                     onClick={() => handleSelectMode('category')}
+                />
+                <MenuButton
+                    icon={<Keyboard size={40} />}
+                    title="Meteor Typing"
+                    emoji="☄️"
+                    stats={stats.typing}
+                    color="from-slate-600 to-slate-800"
+                    onClick={() => handleSelectMode('typing')}
+                />
+                <MenuButton
+                    icon={<div className="text-4xl">🏰</div>}
+                    title="Story Adventure"
+                    emoji="🗺️"
+                    stats={stats.adventure || { played: 0, completed: 0 }}
+                    color="from-yellow-600 to-orange-700"
+                    onClick={() => handleSelectMode('adventure')}
                 />
             </div>
 
