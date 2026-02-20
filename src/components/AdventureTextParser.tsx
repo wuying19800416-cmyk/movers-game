@@ -2,45 +2,6 @@ import React, { useState } from 'react';
 import { ALL_VOCAB } from '../data/words';
 import { Volume2 } from 'lucide-react';
 
-interface AdventureTextParserProps {
-    text: string;
-    onWordInteract?: (word: string) => void;
-}
-
-export const AdventureTextParser: React.FC<AdventureTextParserProps> = ({ text, onWordInteract }) => {
-    // Split by {word} pattern
-    const parts = text.split(/\{([^}]+)\}/g);
-
-    return (
-        <div className="text-xl leading-relaxed text-slate-200">
-            {parts.map((part, index) => {
-                // Every odd index is a word inside {}
-                if (index % 2 === 1) {
-                    const wordKey = part.toLowerCase();
-                    const wordData = ALL_VOCAB.find(w => w.word.toLowerCase() === wordKey);
-
-                    if (wordData) {
-                        return (
-                            <InteractiveWord
-                                key={index}
-                                word={wordData.word}
-                                emoji={wordData.emoji}
-                                type={wordData.key}
-                                onInteract={onWordInteract}
-                            />
-                        );
-                    } else {
-                        // Fallback if word not found in DB
-                        return <span key={index} className="text-yellow-400 font-bold">{part}</span>;
-                    }
-                }
-                // Regular text
-                return <span key={index}>{part}</span>;
-            })}
-        </div>
-    );
-};
-
 interface InteractiveWordProps {
     word: string;
     emoji: string;
@@ -90,5 +51,44 @@ const InteractiveWord: React.FC<InteractiveWordProps> = ({ word, emoji, type, on
                 <span className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-slate-900"></span>
             </span>
         </span>
+    );
+};
+
+interface AdventureTextParserProps {
+    text: string;
+    onWordInteract?: (word: string) => void;
+}
+
+export const AdventureTextParser: React.FC<AdventureTextParserProps> = ({ text, onWordInteract }) => {
+    // Split by {word} pattern
+    const parts = text.split(/\{([^}]+)\}/g);
+
+    return (
+        <div className="text-xl leading-relaxed text-slate-200">
+            {parts.map((part, index) => {
+                // Every odd index is a word inside {}
+                if (index % 2 === 1) {
+                    const wordKey = part.toLowerCase();
+                    const wordData = ALL_VOCAB.find(w => w.word.toLowerCase() === wordKey);
+
+                    if (wordData) {
+                        return (
+                            <InteractiveWord
+                                key={index}
+                                word={wordData.word}
+                                emoji={wordData.emoji}
+                                type={wordData.key}
+                                onInteract={onWordInteract}
+                            />
+                        );
+                    } else {
+                        // Fallback if word not found in DB
+                        return <span key={index} className="text-yellow-400 font-bold">{part}</span>;
+                    }
+                }
+                // Regular text
+                return <span key={index}>{part}</span>;
+            })}
+        </div>
     );
 };
